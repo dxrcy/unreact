@@ -43,18 +43,18 @@ impl Default for Config {
     }
 }
 
+type Pages = HashMap<String, Page>;
+
 #[derive(Debug)]
-#[allow(dead_code)]
-pub struct Unreact<'a> {
+enum Page {
+    Raw(String),
+    Template { template: String, data: Object },
+}
+
+#[derive(Debug)]
+pub struct Unreact {
     config: Config,
-
-    pages: FileMap,
-
-    registry: Handlebars<'a>,
-
-    // templates: FileMap,
-    styles: FileMap,
-
+    pages: Pages,
     globals: Object,
     url: String,
     is_dev: bool,
@@ -64,146 +64,61 @@ type Result<T = ()> = std::result::Result<T, String>;
 
 pub const DEV_BUILD_DIR: &str = ".devbuild";
 
-impl<'a> Unreact<'a> {
-    pub fn new(mut config: Config, is_dev: bool, mut url: &str) -> Result<Self> {
+impl Unreact {
+    pub fn new(mut config: Config, is_dev: bool, url: &str) -> Result<Self> {
         if is_dev {
             config.build = DEV_BUILD_DIR.to_string();
         }
 
-        if is_dev {
-            url = const_str::concat!("http://", server::SERVER_ADDRESS);
-        }
+        let url = if is_dev {
+            format!("http://{}", server::SERVER_ADDRESS)
+        } else {
+            url.to_string()
+        };
 
-        Self::check_dirs(&config)?;
-
-        let templates = Self::load_whole_folder(&config.templates)?;
-        let styles = Self::load_whole_folder(&config.styles)?;
-
-        let mut registry = Handlebars::new();
-
-        if config.strict {
-            registry.set_strict_mode(true);
-        }
-
-        for (name, template) in templates {
-            if let Err(err) = registry.register_partial(&name, template) {
-                throw!(
-                    "Handlebars error! Registering partial '{}', `{:?}`",
-                    name,
-                    err
-                );
-            }
-        }
-
-        let inbuilt_templates: &[(&str, &str)] = &[
-            // Base url for site
-            ("URL", url),
-            // Simple style tag
-            (
-                "CSS",
-                r#"<link rel="stylesheet" href="{{>URL}}/styles/{{name}}/style.css" />"#,
-            ),
-            // Simple link
-            (
-                "LINK",
-                r#"<a href="{{>URL}}/{{to}}"> {{>@partial-block}} </a>"#,
-            ),
-        ];
-
-        for (name, template) in inbuilt_templates {
-            if let Err(err) = registry.register_partial(name, template) {
-                throw!(
-                    "Handlebars error! Registering inbuilt partial '{}', `{:?}`",
-                    name,
-                    err
-                );
-            }
-        }
-
-        // println!("{:?}", templates);
+        check_src_folders(&config)?;
 
         Ok(Self {
             config,
-
-            pages: FileMap::new(),
-
-            registry,
-
-            // templates,
-            styles,
-
+            pages: Pages::new(),
             globals: Object::new(),
-
             url: url.to_string(),
             is_dev,
         })
     }
 
-    fn load_whole_folder(folder: &str) -> Result<FileMap> {
-        let mut filemap = FileMap::new();
-        load_filemap(&mut filemap, folder, "")?;
-        Ok(filemap)
-    }
-
-    // ? pub ?
-    fn check_dirs(config: &Config) -> Result {
-        let src_folders = [&config.templates, &config.public, &config.styles];
-        for folder in src_folders {
-            if !Path::new(&folder).is_dir() {
-                throw!("Directory not exist! '{}'", folder);
-            }
-        }
-
-        Ok(())
-    }
-
-    pub fn set_globals(&mut self, data: Object) -> &mut Self {
+    pub fn globalize(&mut self, data: Object) -> &mut Self {
         self.globals = data;
         self
     }
 
-    //TODO Rename
-    pub fn render_empty(&self, name: &str) -> Result<String> {
-        self.render(name, object! {})
-    }
-
-    pub fn render(&self, name: &str, mut data: Object) -> Result<String> {
-        // Add global variables
-        // let mut data = data.clone();
-        data.insert("GLOBAL".to_string(), Value::Object(self.globals.clone()));
-
-        // Render template
-        match self.registry.render(name, &data) {
-            Ok(rendered) => Ok(rendered),
-
-            Err(err) => throw!("Handlebars failed! Rendering '{}' `{:?}`", name, err),
-        }
-    }
-
-    //TODO Rename
-    pub fn page_plain(&mut self, path: &str, mut content: String) -> &mut Self {
-        // Add dev script to file
-        if self.is_dev {
-            content += "\n\n";
-            content += server::DEV_SCRIPT;
-        }
-
-        self.pages.insert(path.to_string(), content);
+    pub fn route(&mut self, path: &str, template: &str, data: Object) -> &mut Self {
+        self.pages.insert(
+            path.to_string(),
+            Page::Template {
+                template: template.to_string(),
+                data,
+            },
+        );
         self
     }
 
-    pub fn page(&mut self, path: &str, template: &str, data: Object) -> Result<&mut Self> {
-        self.page_plain(path, self.render(template, data)?);
-        Ok(self)
+    pub fn route_exact(&mut self, path: &str, content: String) -> &mut Self {
+        self.pages.insert(path.to_string(), Page::Raw(content));
+        self
     }
 
-    pub fn index(&mut self, template: &str, data: Object) -> Result<&mut Self> {
-        self.page_plain("", self.render(template, data)?);
-        Ok(self)
+    pub fn route_bare(&mut self, path: &str, template: &str) -> &mut Self {
+        self.route(path, template, object! {})
     }
 
-    //TODO
-    // pub fn page_empty()
+    pub fn index(&mut self, template: &str, data: Object) -> &mut Self {
+        self.route("", template, data)
+    }
+
+    pub fn not_found(&mut self, template: &str, data: Object) -> &mut Self {
+        self.route("404", template, data)
+    }
 
     fn clean_build_dir(&self) -> Result {
         let build_folder = format!("./{}", self.config.build);
@@ -241,17 +156,80 @@ impl<'a> Unreact<'a> {
         Ok(())
     }
 
-    pub fn finish(&self) -> Result {
+    pub fn compile(&self) -> Result {
         self.clean_build_dir()?;
 
-        for (page, content) in &self.pages {
-            let path = format!("./{}/{}", self.config.build, page);
+        let mut registry = Handlebars::new();
+
+        if self.config.strict {
+            registry.set_strict_mode(true);
+        }
+
+        let inbuilt_templates: &[(&str, &str)] = &[
+            // Base url for site
+            ("URL", &self.url),
+            // Simple style tag
+            (
+                "CSS",
+                r#"<link rel="stylesheet" href="{{>URL}}/styles/{{name}}/style.css" />"#,
+            ),
+            // Simple link
+            (
+                "LINK",
+                r#"<a href="{{>URL}}/{{to}}"> {{>@partial-block}} </a>"#,
+            ),
+        ];
+
+        for (name, template) in inbuilt_templates {
+            if let Err(err) = registry.register_partial(name, template) {
+                throw!(
+                    "Handlebars error! Registering inbuilt partial '{}', `{:?}`",
+                    name,
+                    err
+                );
+            }
+        }
+
+        let templates = load_folder_recurse(&self.config.templates)?;
+        for (name, template) in templates {
+            if let Err(err) = registry.register_partial(&name, template) {
+                throw!(
+                    "Handlebars error! Registering partial '{}', `{:?}`",
+                    name,
+                    err
+                );
+            }
+        }
+
+        for (name, page) in &self.pages {
+            let path = format!("./{}/{}", self.config.build, name);
             if let Err(err) = fs::create_dir_all(&path) {
                 throw!(
                     "IO Error! Could not create a folder in the build directory '{}', `{:?}`",
                     path,
                     err
                 );
+            }
+
+            let mut content = match page {
+                Page::Raw(page) => page.to_string(),
+                Page::Template { template, data } => {
+                    // Add global variables
+                    let mut data = data.clone();
+                    data.insert("GLOBAL".to_string(), Value::Object(self.globals.clone()));
+
+                    // Render template
+                    match registry.render(template, &data) {
+                        Ok(rendered) => rendered,
+                        Err(err) => throw!("Handlebars failed! Rendering '{}' `{:?}`", name, err),
+                    }
+                }
+            };
+
+            // Add dev script to file
+            if self.is_dev {
+                content += "\n\n";
+                content += server::DEV_SCRIPT;
             }
 
             let path = format!("{path}/index.html");
@@ -264,7 +242,8 @@ impl<'a> Unreact<'a> {
             }
         }
 
-        for (page, scss) in &self.styles {
+        let styles = load_folder_recurse(&self.config.styles)?;
+        for (page, scss) in styles {
             let parent = format!("{}/{}/{}", self.config.build, self.config.styles, page);
             if let Err(err) = fs::create_dir_all(&parent) {
                 throw!(
@@ -291,6 +270,46 @@ impl<'a> Unreact<'a> {
 
         Ok(())
     }
+
+    pub fn run(&self) -> Result {
+        if !self.is_dev {
+            return self.compile();
+        }
+
+        let compile = || {
+            if let Err(err) = self.compile() {
+                eprintln!("Failed to build in dev mode!\n{:?}", err);
+            }
+        };
+
+        //TODO Make ~*pretty*~
+        println!(
+            "Listening on http://localhost:{}\nWatching file changes",
+            server::SERVER_PORT
+        );
+
+        compile();
+        watch(compile);
+
+        Ok(())
+    }
+}
+
+fn check_src_folders(config: &Config) -> Result {
+    let src_folders = [&config.templates, &config.public, &config.styles];
+    for folder in src_folders {
+        if !Path::new(&folder).is_dir() {
+            throw!("Directory not exist! '{}'", folder);
+        }
+    }
+
+    Ok(())
+}
+
+fn load_folder_recurse(folder: &str) -> Result<FileMap> {
+    let mut filemap = FileMap::new();
+    load_filemap(&mut filemap, folder, "")?;
+    Ok(filemap)
 }
 
 fn load_filemap(map: &mut FileMap, root: &str, parent: &str) -> Result {
@@ -335,16 +354,4 @@ fn load_filemap(map: &mut FileMap, root: &str, parent: &str) -> Result {
 
 fn get_filename(full_name: &str) -> Option<&str> {
     full_name.split('.').next()
-}
-
-pub fn run<F>(router: F, is_dev: bool)
-where
-    F: Fn(),
-{
-    if is_dev {
-        router();
-        watch(router);
-    } else {
-        router();
-    }
 }

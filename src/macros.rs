@@ -1,10 +1,10 @@
 #[macro_export]
 macro_rules! object {
-    () => { $crate::Object::new() };
+    {} => { $crate::Object::new() };
 
-    (
+    {
         $( $key: ident : $value: expr ),* $(,)?
-    ) => {{
+    } => {{
         let mut hm = $crate::Object::new();
         $(
             hm.insert(stringify!($key).to_string(), $crate::Value::from($value));

@@ -95,15 +95,15 @@ where
             // let now = Utc::now().timestamp();
 
             // if last_compile + RECOMPILE_DELAY_SECS < now {
-                // last_compile = now;
+            // last_compile = now;
 
-                router();
+            router();
 
-                let clients_ref = clients_clone.lock().unwrap();
+            let clients_ref = clients_clone.lock().unwrap();
 
-                for (_id, client) in clients_ref.iter() {
-                    client.send(simple_websockets::Message::Text("reload".to_string()));
-                }
+            for (_id, client) in clients_ref.iter() {
+                client.send(simple_websockets::Message::Text("reload".to_string()));
+            }
             // }
         }
     }
@@ -126,11 +126,12 @@ pub fn init_server() {
                 make_service_fn(|_| async { Ok::<_, Infallible>(service_fn(server_router)) });
 
             // Create server
-            let addr = SERVER_ADDRESS.parse().expect("Invalid IP address");
+            let addr = const_str::concat!("127.0.0.1:", SERVER_PORT)
+                .parse()
+                .expect("Invalid IP address");
             let server = Server::bind(&addr).serve(make_svc);
 
             // Start server
-            println!("Listening on http://{}", addr);
             server.await?;
 
             Ok::<_, hyper::Error>(())
@@ -164,7 +165,7 @@ async fn server_router(req: Request<Body>) -> Result<Response<Body>, Infallible>
                 //TODO Also no dev script!
 
                 // Fallback 404 response
-                "404 - File not found. Custom 404 page not found.".to_string()
+                "404 - File not found. Custom 404 page not found\nThis message will only show in development mode.".to_string()
             },
         ))
         .unwrap())
