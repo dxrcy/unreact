@@ -1,3 +1,12 @@
+//TODO Remove!
+#[macro_export]
+macro_rules! throw {
+    ( $lit: literal $(, $arg: expr )* ) => {
+        return Err(format!($lit, $( $arg ),*))
+    };
+}
+
+
 #[macro_export]
 macro_rules! object {
     {} => { $crate::Object::new() };

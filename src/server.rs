@@ -45,10 +45,8 @@ fn init_websocket<F>(router: F)
 where
     F: Fn(),
 {
-    let event_hub = simple_websockets::launch(WS_PORT).expect(&format!(
-        "Failed to initialize websockets on port {}",
-        WS_PORT
-    ));
+    let event_hub = simple_websockets::launch(WS_PORT)
+        .unwrap_or_else(|_| panic!("Failed to initialize websockets on port {}", WS_PORT));
 
     let clients = Arc::new(Mutex::new(HashMap::<u64, Responder>::new()));
 
@@ -79,12 +77,12 @@ where
     for folder in folders {
         watcher
             .watch(Path::new(folder), RecursiveMode::Recursive)
-            .expect(&format!("Could not watch folder '{}'", folder));
+            .unwrap_or_else(|_| panic!("Could not watch folder '{}'", folder));
     }
 
     // let mut last_compile = Utc::now().timestamp();
 
-    let clients_clone = clients.clone();
+    let clients_clone = clients;
     loop {
         let event = rx.recv().expect("idk! #1").expect("idk! #2");
 
