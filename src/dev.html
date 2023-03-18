@@ -1,0 +1,25 @@
+<!-- *** This file is in DEVELOPMENT MODE! *** -->
+
+<script>
+    console.warn("This document is in *development mode*");
+
+    let ws = new WebSocket("ws://localhost:3001");
+
+    ws.onopen = event => {
+        console.log("Server open!");
+    };
+
+    ws.onerror = error => {
+        console.error("Error!", error);
+    };
+
+    ws.onclose = error => {
+        console.log("Server closed :(");
+    };
+
+    ws.onmessage = event => {
+        if (event.data === "reload") {
+            location.reload();
+        }
+    };
+</script>

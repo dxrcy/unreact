@@ -11,6 +11,8 @@ pub type FileMap = HashMap<String, String>;
 
 pub type Object = serde_json::Map<String, Value>;
 
+pub use server::watch;
+
 macro_rules! throw {
     ( $lit: literal $(, $arg: expr )* ) => {
         return Err(format!($lit, $( $arg ),*))
@@ -26,7 +28,6 @@ pub struct Config {
 
     pub strict: bool,
     pub minify: bool,
-    pub dev_warning: bool,
 }
 
 impl Default for Config {
@@ -37,7 +38,6 @@ impl Default for Config {
             public: "public".to_string(),
             styles: "styles".to_string(),
             strict: false,
-            dev_warning: true,
             minify: true,
         }
     }
@@ -45,14 +45,14 @@ impl Default for Config {
 
 #[derive(Debug)]
 #[allow(dead_code)]
-pub struct App<'a> {
+pub struct Unreact<'a> {
     config: Config,
 
     pages: FileMap,
 
     registry: Handlebars<'a>,
 
-    templates: FileMap,
+    // templates: FileMap,
     styles: FileMap,
 
     globals: Object,
@@ -64,14 +64,14 @@ type Result<T = ()> = std::result::Result<T, String>;
 
 pub const DEV_BUILD_DIR: &str = ".devbuild";
 
-impl<'a> App<'a> {
+impl<'a> Unreact<'a> {
     pub fn new(mut config: Config, is_dev: bool, mut url: &str) -> Result<Self> {
         if is_dev {
             config.build = DEV_BUILD_DIR.to_string();
         }
 
         if is_dev {
-            url = const_str::concat!("http://", server::ADDRESS);
+            url = const_str::concat!("http://", server::SERVER_ADDRESS);
         }
 
         Self::check_dirs(&config)?;
@@ -85,8 +85,8 @@ impl<'a> App<'a> {
             registry.set_strict_mode(true);
         }
 
-        for (name, template) in &templates {
-            if let Err(err) = registry.register_partial(name, template) {
+        for (name, template) in templates {
+            if let Err(err) = registry.register_partial(&name, template) {
                 throw!(
                     "Handlebars error! Registering partial '{}', `{:?}`",
                     name,
@@ -98,16 +98,6 @@ impl<'a> App<'a> {
         let inbuilt_templates: &[(&str, &str)] = &[
             // Base url for site
             ("URL", url),
-            // Script for development
-            // Is not registered if `dev_warning` in config is false
-            (
-                "DEV_SCRIPT",
-                if is_dev && config.dev_warning {
-                    server::DEV_SCRIPT
-                } else {
-                    ""
-                },
-            ),
             // Simple style tag
             (
                 "CSS",
@@ -130,6 +120,8 @@ impl<'a> App<'a> {
             }
         }
 
+        // println!("{:?}", templates);
+
         Ok(Self {
             config,
 
@@ -137,7 +129,7 @@ impl<'a> App<'a> {
 
             registry,
 
-            templates,
+            // templates,
             styles,
 
             globals: Object::new(),
@@ -189,7 +181,13 @@ impl<'a> App<'a> {
     }
 
     //TODO Rename
-    pub fn page_plain(&mut self, path: &str, content: String) -> &mut Self {
+    pub fn page_plain(&mut self, path: &str, mut content: String) -> &mut Self {
+        // Add dev script to file
+        if self.is_dev {
+            content += "\n\n";
+            content += server::DEV_SCRIPT;
+        }
+
         self.pages.insert(path.to_string(), content);
         self
     }
@@ -243,10 +241,10 @@ impl<'a> App<'a> {
         Ok(())
     }
 
-    pub fn finish(self) -> Result {
+    pub fn finish(&self) -> Result {
         self.clean_build_dir()?;
 
-        for (page, content) in self.pages {
+        for (page, content) in &self.pages {
             let path = format!("./{}/{}", self.config.build, page);
             if let Err(err) = fs::create_dir_all(&path) {
                 throw!(
@@ -266,7 +264,7 @@ impl<'a> App<'a> {
             }
         }
 
-        for (page, scss) in self.styles {
+        for (page, scss) in &self.styles {
             let parent = format!("{}/{}/{}", self.config.build, self.config.styles, page);
             if let Err(err) = fs::create_dir_all(&parent) {
                 throw!(
@@ -289,10 +287,6 @@ impl<'a> App<'a> {
             if let Err(err) = fs::write(&path, css) {
                 throw!("IO Error! Could not write css file '{}' `{:?}`", path, err);
             }
-        }
-
-        if self.is_dev {
-            server::listen();
         }
 
         Ok(())
@@ -341,4 +335,16 @@ fn load_filemap(map: &mut FileMap, root: &str, parent: &str) -> Result {
 
 fn get_filename(full_name: &str) -> Option<&str> {
     full_name.split('.').next()
+}
+
+pub fn run<F>(router: F, is_dev: bool)
+where
+    F: Fn(),
+{
+    if is_dev {
+        router();
+        watch(router);
+    } else {
+        router();
+    }
 }
