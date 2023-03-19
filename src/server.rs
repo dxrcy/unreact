@@ -7,7 +7,6 @@ use std::{
     thread,
 };
 
-// use chrono::Utc;
 use http::{Method, Request, Response, StatusCode};
 use hyper::{
     service::{make_service_fn, service_fn},
@@ -19,11 +18,9 @@ use simple_websockets::{Event, Responder};
 use crate::DEV_BUILD_DIR;
 
 /// Local address with port to host dev server
-pub const SERVER_PORT: u16 = 3000;
-pub const SERVER_ADDRESS: &str = const_str::concat!("127.0.0.1:", SERVER_PORT);
-pub const WS_PORT: u16 = 3001;
 
-// pub const RECOMPILE_DELAY_SECS: i64 = 0;
+pub const SERVER_PORT: u16 = 3000;
+pub const WS_PORT: u16 = 3001;
 
 /// Partial for 'hot reloading' document in development
 pub const DEV_SCRIPT: &str = include_str!("dev.html");
@@ -80,8 +77,6 @@ where
             .unwrap_or_else(|_| panic!("Could not watch folder '{}'", folder));
     }
 
-    // let mut last_compile = Utc::now().timestamp();
-
     let clients_clone = clients;
     loop {
         let event = rx.recv().expect("idk! #1").expect("idk! #2");
@@ -90,11 +85,6 @@ where
             event.kind,
             EventKind::Create(_) | EventKind::Modify(_) | EventKind::Remove(_)
         ) {
-            // let now = Utc::now().timestamp();
-
-            // if last_compile + RECOMPILE_DELAY_SECS < now {
-            // last_compile = now;
-
             router();
 
             let clients_ref = clients_clone.lock().unwrap();
@@ -102,7 +92,6 @@ where
             for (_id, client) in clients_ref.iter() {
                 client.send(simple_websockets::Message::Text("reload".to_string()));
             }
-            // }
         }
     }
 }
@@ -159,11 +148,10 @@ async fn server_router(req: Request<Body>) -> Result<Response<Body>, Infallible>
                     .body(file)
                     .unwrap());
             } else {
-                //TODO This will not have 404 status????
-                //TODO Also no dev script!
-
                 // Fallback 404 response
-                "404 - File not found. Custom 404 page not found\nThis message will only show in development mode.".to_string()
+                //TODO This will not have 404 status????
+                //TODO ? Add dev script ?
+                "404 - File not found.\nCustom 404 page also not found.\nThis message will only show in development mode.\nThis page will not automatically reload.".to_string()
             },
         ))
         .unwrap())

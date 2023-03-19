@@ -7,7 +7,7 @@ use crate::{
     files::{check_src_folders, clean_build_dir, load_folder_recurse},
     object,
     server::{self, watch},
-    throw, Config, Object, Page, Pages, Result, Unreact, DEV_BUILD_DIR,
+    Config, Object, Page, Pages, Result, Unreact, DEV_BUILD_DIR,
 };
 
 impl Unreact {
@@ -17,7 +17,7 @@ impl Unreact {
         }
 
         let url = if is_dev {
-            format!("http://{}", server::SERVER_ADDRESS)
+            format!("http://localhost:{}", server::SERVER_PORT)
         } else {
             url.to_string()
         };
@@ -82,44 +82,55 @@ impl Unreact {
 
         for (name, page) in &self.pages {
             let path = format!("./{}/{}", self.config.build, name);
-            if let Err(err) = fs::create_dir_all(&path) {
-                throw!(
+
+            try_unwrap!(
+                fs::create_dir_all(&path),
+                else Err(err) => throw!(
                     "IO Error! Could not create a folder in the build directory '{}', `{:?}`",
                     path,
                     err
-                );
-            }
+                )
+            );
 
-            let content =
-                render_page(&mut registry, name, page, self.globals.clone(), self.is_dev)?;
+            let content = render_page(
+                &mut registry,
+                name,
+                page,
+                self.globals.clone(),
+                self.is_dev,
+                self.config.minify,
+            )?;
 
             let path = format!("{path}/index.html");
-            if let Err(err) = fs::write(&path, content) {
-                throw!(
+            try_unwrap!(
+                fs::write(&path, content),
+                else Err(err) => throw!(
                     "IO Error! Could not write file in build directory '{}' `{:?}`",
                     path,
                     err
-                );
-            }
+                )
+            );
         }
 
         let styles = load_folder_recurse(&self.config.styles)?;
         for (name, scss) in styles {
             let parent = format!("{}/{}/{}", self.config.build, self.config.styles, name);
-            if let Err(err) = fs::create_dir_all(&parent) {
-                throw!(
+            try_unwrap!(
+                fs::create_dir_all(&parent),
+                else Err(err) => throw!(
                     "IO Error! Could not create folder in styles build directory '{}' `{:?}`",
                     parent,
                     err
-                );
-            }
+                )
+            );
 
-            let css = scss_to_css(&name, &scss)?;
+            let css = scss_to_css(&name, &scss, self.config.minify)?;
 
             let path = format!("{}/style.css", parent);
-            if let Err(err) = fs::write(&path, css) {
-                throw!("IO Error! Could not write css file '{}' `{:?}`", path, err);
-            }
+            try_unwrap!(
+                fs::write(&path, css),
+                else Err(err) => throw!("IO Error! Could not write css file '{}' `{:?}`", path, err)
+            );
         }
 
         Ok(())
@@ -131,9 +142,10 @@ impl Unreact {
         }
 
         let compile = || {
-            if let Err(err) = self.compile() {
-                eprintln!("Failed to build in dev mode!\n{:?}", err);
-            }
+            try_unwrap!(
+                self.compile(),
+                else Err(err) => eprintln!("Failed to build in dev mode!\n{:?}", err),
+            );
         };
 
         //TODO Make ~*pretty*~

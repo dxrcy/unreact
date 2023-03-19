@@ -1,6 +1,6 @@
 use std::{fs, path::Path};
 
-use crate::{throw, Config, FileMap, Result};
+use crate::{Config, FileMap, Result};
 
 pub fn get_filename(full_name: &str) -> Option<&str> {
     full_name.split('.').next()
@@ -26,14 +26,15 @@ pub fn load_folder_recurse(folder: &str) -> Result<FileMap> {
 fn load_filemap(map: &mut FileMap, root: &str, parent: &str) -> Result {
     let full_path = format!("./{root}/{parent}/");
 
-    let children = match fs::read_dir(&full_path) {
-        Ok(children) => children,
-        Err(err) => throw!(
+    let children = try_unwrap!(
+        fs::read_dir(&full_path),
+
+        else Err(err) => throw!(
             "IO Error! Could not read director '{}' `{:?}`",
             full_path,
             err
         ),
-    };
+    );
 
     for file in children.flatten() {
         let (path, full_name) = (file.path(), file.file_name());
@@ -52,10 +53,10 @@ fn load_filemap(map: &mut FileMap, root: &str, parent: &str) -> Result {
             continue;
         };
 
-        let content = match fs::read_to_string(&path) {
-            Ok(content) => content,
-            Err(err) => throw!("IO Error! Could not read file '{}' `{:?}`", path, err),
-        };
+        let content = try_unwrap!(
+            fs::read_to_string(&path),
+            else Err(err) => throw!("IO Error! Could not read file '{}' `{:?}`", path, err),
+        );
 
         map.insert(format!("{parent}{name}"), content);
     }
@@ -66,35 +67,42 @@ fn load_filemap(map: &mut FileMap, root: &str, parent: &str) -> Result {
 pub fn clean_build_dir(config: &Config) -> Result {
     let build_folder = format!("./{}", config.build);
     if Path::new(&build_folder).exists() {
-        if let Err(err) = fs::remove_dir_all(&build_folder) {
-            throw!(
+        try_unwrap!(
+            fs::remove_dir_all(&build_folder),
+
+            else Err(err) => throw!(
                 "IO Error! Could not remove build directory '{}' `{:?}`",
                 build_folder,
                 err
-            );
-        }
+            )
+        );
     }
 
     let out_folders = ["", "styles", "public"];
     for folder in out_folders {
         let path = format!("./{}/{}", config.build, folder);
-        if let Err(err) = fs::create_dir_all(&path) {
-            throw!(
+
+        try_unwrap!(
+            fs::create_dir_all(&path),
+
+            else Err(err) => throw!(
                 "IO Error! Could not create directory in build folder '{}' `{:?}`",
                 path,
                 err
-            );
-        }
+            )
+        );
     }
 
     let path = format!("./{}", config.public);
-    if let Err(err) = dircpy::copy_dir(&path, format!("./{}/public", config.build)) {
-        throw!(
+    try_unwrap!(
+        dircpy::copy_dir(&path, format!("./{}/public", config.build)),
+
+        else Err(err) => throw!(
             "IO Error! Could not copy public directory '{}' `{:?}`",
             path,
             err
-        );
-    };
+        )
+    );
 
     Ok(())
 }

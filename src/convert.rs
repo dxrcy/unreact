@@ -1,16 +1,39 @@
+use css_minify::optimizations as css_minify;
 use handlebars::Handlebars;
 
-use crate::{server, throw, FileMap, Object, Page, Result, Value};
+use crate::{server, FileMap, Object, Page, Result, Value};
 
-pub fn scss_to_css(name: &str, scss: &str) -> Result<String> {
-    match grass::from_string(scss, &Default::default()) {
-        Ok(css) => Ok(css),
-        Err(err) => throw!(
-            "SCSS to CSS Error! Problem with scss file '{}' `{:?}`",
-            name,
-            err
-        ),
+pub fn scss_to_css(name: &str, scss: &str, minify: bool) -> Result<String> {
+    // Convert scss to css
+    let css = try_unwrap!(
+        grass::from_string(scss, &Default::default()),
+
+        else Err(err) => {
+            throw!(
+                "SCSS to CSS Error! Problem with scss file '{}' `{:?}`",
+                name,
+                err
+            )
+        }
+    );
+
+    // Minify
+    if minify {
+        return Ok(try_unwrap!(
+            css_minify::Minifier::default().minify(&css, css_minify::Level::Two),
+
+            else Err(err) => {
+                throw!(
+                    "CSS minify error! Problem with scss file '{}' `{:?}`",
+                    name,
+                    err
+                )
+            }
+        ));
     }
+
+    // Don't minify
+    return Ok(css);
 }
 
 pub(crate) fn render_page(
@@ -19,6 +42,7 @@ pub(crate) fn render_page(
     page: &Page,
     globals: Object,
     is_dev: bool,
+    minify: bool,
 ) -> Result<String> {
     let mut rendered = match page {
         Page::Raw(page) => page.to_string(),
@@ -29,12 +53,26 @@ pub(crate) fn render_page(
             data.insert("GLOBAL".to_string(), Value::Object(globals));
 
             // Render template
-            match registry.render(template, &data) {
-                Ok(rendered) => rendered,
-                Err(err) => throw!("Handlebars failed! Rendering '{}' `{:?}`", name, err),
-            }
+            try_unwrap!(
+                registry.render(template, &data),
+                else Err(err) => throw!("Handlebars failed! Rendering '{}' `{:?}`", name, err),
+            )
         }
     };
+
+    // Minify before adding dev script
+    if minify {
+        let config = minify_html::Cfg {
+            do_not_minify_doctype: true,
+            keep_comments: true,
+            keep_html_and_head_opening_tags: true,
+            keep_closing_tags: true,
+            ..minify_html::Cfg::default()
+        };
+
+        rendered =
+            String::from_utf8_lossy(&minify_html::minify(rendered.as_bytes(), &config)).to_string()
+    }
 
     // Add dev script to file
     if is_dev {
@@ -47,13 +85,14 @@ pub(crate) fn render_page(
 
 pub fn register_templates(registry: &mut Handlebars, templates: FileMap) -> Result {
     for (name, template) in templates {
-        if let Err(err) = registry.register_partial(&name, template) {
-            throw!(
+        try_unwrap!(
+            registry.register_partial(&name, template),
+            else Err(err) => throw!(
                 "Handlebars error! Registering template '{}', `{:?}`",
                 name,
                 err
-            );
-        }
+            )
+        );
     }
 
     Ok(())
@@ -76,13 +115,14 @@ pub fn register_inbuilt_templates(registry: &mut Handlebars, url: &str) -> Resul
     ];
 
     for (name, template) in inbuilt_templates {
-        if let Err(err) = registry.register_partial(name, template) {
-            throw!(
+        try_unwrap!(
+            registry.register_partial(name, template),
+            else Err(err) => throw!(
                 "Handlebars error! Registering inbuilt template '{}', `{:?}`",
                 name,
                 err
-            );
-        }
+            )
+        );
     }
 
     Ok(())

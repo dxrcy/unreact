@@ -1,12 +1,3 @@
-//TODO Remove!
-#[macro_export]
-macro_rules! throw {
-    ( $lit: literal $(, $arg: expr )* ) => {
-        return Err(format!($lit, $( $arg ),*))
-    };
-}
-
-
 #[macro_export]
 macro_rules! object {
     {} => { $crate::Object::new() };
@@ -20,6 +11,38 @@ macro_rules! object {
         )*
         hm
     }};
+}
+
+//TODO Remove!
+macro_rules! throw {
+    ( $lit: literal $(, $arg: expr )* ) => {
+        return Err(format!($lit, $( $arg ),*))
+    };
+}
+
+macro_rules! try_unwrap {
+    (
+        $option: expr,
+        else Err($err: ident) => $block: block
+        $(,)?
+    ) => {
+        match $option {
+            Ok(value) => value,
+            Err($err) => $block,
+        }
+    };
+
+    (
+        $option: expr,
+        else Err($err: ident) => $stmt: stmt
+        $(,)?
+    ) => {
+        match $option {
+            Ok(value) => value,
+            // Brackets cannot be removed
+            #[rustfmt::skip] Err($err) => { $stmt },
+        }
+    };
 }
 
 #[cfg(test)]

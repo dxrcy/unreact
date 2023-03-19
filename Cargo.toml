@@ -2,8 +2,24 @@
 name = "unreact"
 version = "0.2.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "A static site generation framework for Rust using Handlebars and Scss."
+license = "MIT"
+exclude = [
+    "build",
+    "docs",
+    ".devbuild",
+    "templates",
+    "styles",
+    "public",
+    "target",
+    "justfile",
+    "examples",
+]
+documentation = "https://docs.rs/unreact/latest/unreact"
+repository = "https://github.com/darccyy/unreact"
+authors = ["darcy"]
+keywords = ["framework", "ssg", "static", "site", "web"]
+categories = ["web-programming", "template-engine"]
 
 [dependencies]
 const-str = "0.5.3"
@@ -11,6 +27,8 @@ dircpy = "0.3.14"
 grass = "0.12.3"
 handlebars = "4.3.6"
 serde_json = "1.0.94"
+css-minify = "0.3.1"
+minify-html = "0.10.8"
 
 http = "0.2.9"
 hyper = { version = "0.14.25", features = ["server", "tcp", "http1"] }
@@ -18,4 +36,3 @@ tokio = { version = "1.26.0", features = ["rt", "rt-multi-thread"] }
 notify = "5.1.0"
 notify-debouncer-mini = "0.2.1"
 simple-websockets = "0.1.5"
-chrono = "0.4.24"
