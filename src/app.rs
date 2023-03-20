@@ -5,15 +5,7 @@ use handlebars::Handlebars;
 use crate::{
     convert::{register_inbuilt_templates, register_templates, render_page, scss_to_css},
     files::{check_src_folders, clean_build_dir, load_folder_recurse},
-    object,
-    // server::{self, watch},
-    Config,
-    Object,
-    Page,
-    Pages,
-    Result,
-    Unreact,
-    DEV_BUILD_DIR,
+    object, Config, Object, Page, Pages, Result, Unreact, DEV_BUILD_DIR,
 };
 
 #[cfg(feature = "dev")]

@@ -1,6 +1,6 @@
-use unreact::{object, Config, Unreact};
+use unreact::prelude::*;
 
-fn main() -> Result<(), String> {
+fn main() -> Result<(), Error> {
     let is_dev = true;
 
     let config = Config {
