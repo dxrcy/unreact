@@ -43,16 +43,9 @@ notify = { version = "5.1.0", optional = true }
 notify-debouncer-mini = { version = "0.2.1", optional = true }
 simple-websockets = { version = "0.1.5", optional = true }
 chrono = { version = "0.4.24", optional = true }
+thiserror = "1.0.40"
 
 [features]
 # default = ["dev"]
-dev = [
-    "dep:http",
-    "dep:hyper",
-    "dep:tokio",
-    "dep:notify",
-    "dep:notify-debouncer-mini",
-    "dep:simple-websockets",
-    "dep:chrono",
-]
+dev = ["dep:http", "dep:hyper", "dep:tokio", "dep:notify", "dep:notify-debouncer-mini", "dep:simple-websockets", "dep:chrono"]
 watch = ["dev"]

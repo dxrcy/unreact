@@ -1,2 +1,7 @@
-#[derive(Debug)]
-pub struct Error(pub String);
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("Generic error! `{0}`")]
+    Generic(String),
+}

@@ -16,7 +16,7 @@ macro_rules! object {
 //TODO Remove!
 macro_rules! throw {
     ( $lit: literal $(, $arg: expr )* ) => {
-        return Err($crate::Error(format!($lit, $( $arg ),*)))
+        return Err($crate::Error::Generic(format!($lit, $( $arg ),*)))
     };
 }
 
