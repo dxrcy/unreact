@@ -1,25 +1,49 @@
 <!-- *** This file is in DEVELOPMENT MODE! *** -->
 
 <script>
+    /* Websocket stuff */
+
+    console.clear();
     console.warn("This document is in *development mode*");
 
-    let ws = new WebSocket("ws://localhost:3001");
+    let ws;
+    connect();
 
-    ws.onopen = event => {
-        console.log("Server open!");
-    };
+    function connect() {
+        console.log("WS: Connecting...");
+        ws = new WebSocket("ws://localhost:3001");
 
-    ws.onerror = error => {
-        console.error("Error!", error);
-    };
+        ws.onopen = event => {
+            console.log("WS: Server open");
+            cancel_reconnect();
+        };
 
-    ws.onclose = error => {
-        console.log("Server closed :(");
-    };
+        ws.onclose = error => {
+            console.warn("WS: Server closed");
+            reconnect();
+        };
 
-    ws.onmessage = event => {
-        if (event.data === "reload") {
-            location.reload();
-        }
-    };
+        ws.onerror = error => {
+            console.error("WS: Failed to connect!");
+            reconnect();
+        };
+
+        ws.onmessage = event => {
+            if (event.data === "reload") {
+                console.log("Reloading page...");
+                location.reload();
+            }
+        };
+    }
+
+    let reconnect_interval;
+
+    function reconnect() {
+        cancel_reconnect();
+        reconnect_interval = setInterval(connect, 1000);
+    }
+
+    function cancel_reconnect() {
+        clearInterval(reconnect_interval);
+    }
 </script>

@@ -1,7 +1,7 @@
 use css_minify::optimizations as css_minify;
 use handlebars::Handlebars;
 
-use crate::{server, FileMap, Object, Page, Result, Value};
+use crate::{FileMap, Object, Page, Result, Value};
 
 pub fn scss_to_css(name: &str, scss: &str, minify: bool) -> Result<String> {
     // Convert scss to css
@@ -41,7 +41,7 @@ pub(crate) fn render_page(
     name: &str,
     page: &Page,
     globals: Object,
-    is_dev: bool,
+    #[allow(unused_variables)] is_dev: bool,
     minify: bool,
 ) -> Result<String> {
     let mut rendered = match page {
@@ -75,9 +75,10 @@ pub(crate) fn render_page(
     }
 
     // Add dev script to file
+    #[cfg(feature = "watch")]
     if is_dev {
         rendered += "\n\n";
-        rendered += server::DEV_SCRIPT;
+        rendered += crate::server::DEV_SCRIPT;
     }
 
     Ok(rendered)

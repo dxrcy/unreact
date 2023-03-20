@@ -3,9 +3,11 @@ mod macros;
 
 mod app;
 mod config;
-mod files;
-mod server;
 mod convert;
+mod files;
+
+#[cfg(feature = "watch")]
+mod server;
 
 use std::collections::HashMap;
 

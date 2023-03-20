@@ -1,14 +1,24 @@
 use std::fs;
 
+use cfg_if::cfg_if;
 use handlebars::Handlebars;
 
 use crate::{
     convert::{register_inbuilt_templates, register_templates, render_page, scss_to_css},
     files::{check_src_folders, clean_build_dir, load_folder_recurse},
     object,
-    server::{self, watch},
-    Config, Object, Page, Pages, Result, Unreact, DEV_BUILD_DIR,
+    // server::{self, watch},
+    Config,
+    Object,
+    Page,
+    Pages,
+    Result,
+    Unreact,
+    DEV_BUILD_DIR,
 };
+
+#[cfg(feature = "watch")]
+use crate::server;
 
 impl Unreact {
     pub fn new(mut config: Config, is_dev: bool, url: &str) -> Result<Self> {
@@ -16,19 +26,13 @@ impl Unreact {
             config.build = DEV_BUILD_DIR.to_string();
         }
 
-        let url = if is_dev {
-            format!("http://localhost:{}", server::SERVER_PORT)
-        } else {
-            url.to_string()
-        };
-
         check_src_folders(&config)?;
 
         Ok(Self {
             config,
             pages: Pages::new(),
             globals: Object::new(),
-            url,
+            url: get_url(url, is_dev),
             is_dev,
         })
     }
@@ -136,6 +140,7 @@ impl Unreact {
         Ok(())
     }
 
+    #[cfg(feature = "watch")]
     pub fn run(&self) -> Result {
         if !self.is_dev {
             return self.compile();
@@ -155,8 +160,20 @@ impl Unreact {
         );
 
         compile();
-        watch(compile);
+        server::watch(compile);
 
         Ok(())
     }
+}
+
+fn get_url(url: &str, is_dev: bool) -> String {
+    // If `watch` feature is used, and `is_dev`
+    cfg_if!( if #[cfg(feature = "watch")] {
+        if is_dev {
+            return format!("http://localhost:{}", server::SERVER_PORT);
+        }
+    });
+
+    // Default
+    url.to_string()
 }

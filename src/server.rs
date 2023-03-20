@@ -5,8 +5,10 @@ use std::{
     path::Path,
     sync::{mpsc::channel, Arc, Mutex},
     thread,
+    time::Duration,
 };
 
+use chrono::Utc;
 use http::{Method, Request, Response, StatusCode};
 use hyper::{
     service::{make_service_fn, service_fn},
@@ -24,6 +26,8 @@ pub const WS_PORT: u16 = 3001;
 
 /// Partial for 'hot reloading' document in development
 pub const DEV_SCRIPT: &str = include_str!("dev.html");
+
+pub const MIN_RECOMPILE_INTERVAL: u32 = 0;
 
 /// Open file server, watch source files to hot reload client
 pub fn watch<F>(router: F)
@@ -54,14 +58,16 @@ where
         for event in event_hub.drain() {
             match event {
                 Event::Connect(id, responder) => {
+                    println!("Connect #{}", id);
                     clients.insert(id, responder);
                 }
 
                 Event::Disconnect(id) => {
+                    println!("Disconnect #{}", id);
                     clients.remove(&id);
                 }
 
-                Event::Message(_id, _msg) => (),
+                _ => (),
             }
         }
     });
@@ -77,6 +83,8 @@ where
             .unwrap_or_else(|_| panic!("Could not watch folder '{}'", folder));
     }
 
+    let mut last_compile = Utc::now().timestamp();
+
     let clients_clone = clients;
     loop {
         let event = rx.recv().expect("idk! #1").expect("idk! #2");
@@ -85,12 +93,21 @@ where
             event.kind,
             EventKind::Create(_) | EventKind::Modify(_) | EventKind::Remove(_)
         ) {
-            router();
+            let now = Utc::now().timestamp();
 
-            let clients_ref = clients_clone.lock().unwrap();
+            if last_compile + (MIN_RECOMPILE_INTERVAL as i64) < now {
+                last_compile = now;
 
-            for (_id, client) in clients_ref.iter() {
-                client.send(simple_websockets::Message::Text("reload".to_string()));
+                // ???? why ????
+                thread::sleep(Duration::from_millis(300));
+
+                router();
+
+                let clients_ref = clients_clone.lock().unwrap();
+
+                for (_id, client) in clients_ref.iter() {
+                    client.send(simple_websockets::Message::Text("reload".to_string()));
+                }
             }
         }
     }
