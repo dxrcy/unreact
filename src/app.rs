@@ -1,6 +1,5 @@
 use std::fs;
 
-use cfg_if::cfg_if;
 use handlebars::Handlebars;
 
 use crate::{
@@ -17,7 +16,7 @@ use crate::{
     DEV_BUILD_DIR,
 };
 
-#[cfg(feature = "watch")]
+#[cfg(feature = "dev")]
 use crate::server;
 
 impl Unreact {
@@ -140,7 +139,13 @@ impl Unreact {
         Ok(())
     }
 
-    #[cfg(feature = "watch")]
+    #[cfg(not(feature = "dev"))]
+    pub fn run(&self) -> Result {
+        self.compile()
+    }
+
+    //TODO Rename
+    #[cfg(feature = "dev")]
     pub fn run(&self) -> Result {
         if !self.is_dev {
             return self.compile();
@@ -154,21 +159,25 @@ impl Unreact {
         };
 
         //TODO Make ~*pretty*~
-        println!(
-            "Listening on http://localhost:{}\nWatching file changes",
-            server::SERVER_PORT
-        );
+        println!("Listening on http://localhost:{}", server::SERVER_PORT);
 
         compile();
-        server::watch(compile);
+
+        cfg_if!( if #[cfg(feature = "watch")] {
+            std::thread::spawn(server::listen);
+
+            server::watch(compile);
+        } else {
+            server::listen();
+        });
 
         Ok(())
     }
 }
 
-fn get_url(url: &str, is_dev: bool) -> String {
+fn get_url(url: &str, #[allow(unused_variables)] is_dev: bool) -> String {
     // If `watch` feature is used, and `is_dev`
-    cfg_if!( if #[cfg(feature = "watch")] {
+    cfg_if!( if #[cfg(feature = "dev")] {
         if is_dev {
             return format!("http://localhost:{}", server::SERVER_PORT);
         }

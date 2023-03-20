@@ -1,124 +1,50 @@
-use std::{
-    collections::HashMap,
-    convert::Infallible,
-    fs,
-    path::Path,
-    sync::{mpsc::channel, Arc, Mutex},
-    thread,
-    time::Duration,
-};
+#[cfg(feature = "watch")]
+mod watch;
+#[cfg(feature = "watch")]
+pub use watch::watch;
 
-use chrono::Utc;
+use std::{convert::Infallible, fs, path::Path};
+
 use http::{Method, Request, Response, StatusCode};
 use hyper::{
     service::{make_service_fn, service_fn},
     Body, Server,
 };
-use notify::{EventKind, RecursiveMode, Watcher};
-use simple_websockets::{Event, Responder};
 
 use crate::DEV_BUILD_DIR;
 
 /// Local address with port to host dev server
 
 pub const SERVER_PORT: u16 = 3000;
-pub const WS_PORT: u16 = 3001;
 
-/// Partial for 'hot reloading' document in development
-pub const DEV_SCRIPT: &str = include_str!("dev.html");
+/// Partial for NOT hot reloading document in development
+#[cfg(not(feature = "watch"))]
+pub const DEV_SCRIPT: &str = include_str!("client-script/dev.html");
+/// Partial for hot reloading document in development
+#[cfg(feature = "watch")]
+pub const DEV_SCRIPT: &str = include_str!("client-script/watch.html");
 
-pub const MIN_RECOMPILE_INTERVAL: u32 = 0;
-
+//TODO remove this function and expose `listen` (open_server) and `watch` functions to `app`
 /// Open file server, watch source files to hot reload client
-pub fn watch<F>(router: F)
-where
-    F: Fn(),
-{
-    // Create file server on new thread
-    thread::spawn(init_server);
+// pub fn listen<F>(#[allow(unused_variables)] router: F)
+// where
+//     F: Fn(),
+// {
+//     // Create file server on new thread
+//     thread::spawn(open_server);
 
-    // Create websocket server
-    init_websocket(router);
-}
-
-/// Initialize websocket server, with callback router
-fn init_websocket<F>(router: F)
-where
-    F: Fn(),
-{
-    let event_hub = simple_websockets::launch(WS_PORT)
-        .unwrap_or_else(|_| panic!("Failed to initialize websockets on port {}", WS_PORT));
-
-    let clients = Arc::new(Mutex::new(HashMap::<u64, Responder>::new()));
-
-    let clients_clone = clients.clone();
-    thread::spawn(move || loop {
-        let mut clients = clients_clone.lock().unwrap();
-
-        for event in event_hub.drain() {
-            match event {
-                Event::Connect(id, responder) => {
-                    println!("Connect #{}", id);
-                    clients.insert(id, responder);
-                }
-
-                Event::Disconnect(id) => {
-                    println!("Disconnect #{}", id);
-                    clients.remove(&id);
-                }
-
-                _ => (),
-            }
-        }
-    });
-
-    let (tx, rx) = channel();
-
-    let mut watcher = notify::recommended_watcher(tx).expect("Could not create watcher");
-
-    let folders = ["templates", "styles", "public"];
-    for folder in folders {
-        watcher
-            .watch(Path::new(folder), RecursiveMode::Recursive)
-            .unwrap_or_else(|_| panic!("Could not watch folder '{}'", folder));
-    }
-
-    let mut last_compile = Utc::now().timestamp();
-
-    let clients_clone = clients;
-    loop {
-        let event = rx.recv().expect("idk! #1").expect("idk! #2");
-
-        if matches!(
-            event.kind,
-            EventKind::Create(_) | EventKind::Modify(_) | EventKind::Remove(_)
-        ) {
-            let now = Utc::now().timestamp();
-
-            if last_compile + (MIN_RECOMPILE_INTERVAL as i64) < now {
-                last_compile = now;
-
-                // ???? why ????
-                thread::sleep(Duration::from_millis(300));
-
-                router();
-
-                let clients_ref = clients_clone.lock().unwrap();
-
-                for (_id, client) in clients_ref.iter() {
-                    client.send(simple_websockets::Message::Text("reload".to_string()));
-                }
-            }
-        }
-    }
-}
+//     // Create websocket server
+//     cfg_if!( if #[cfg(feature = "watch")] {
+//         watch::init_websocket(router);
+//     });
+// }
 
 /// Create server and listen on local port
 ///
 /// Almost mimics GitHub Pages
 ///
 /// Reads file on every GET request, however this should not be a problem for a dev server
-pub fn init_server() {
+pub fn listen() {
     // Start `tokio` runtime (without macro)
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()

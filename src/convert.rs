@@ -75,7 +75,7 @@ pub(crate) fn render_page(
     }
 
     // Add dev script to file
-    #[cfg(feature = "watch")]
+    #[cfg(feature = "dev")]
     if is_dev {
         rendered += "\n\n";
         rendered += crate::server::DEV_SCRIPT;

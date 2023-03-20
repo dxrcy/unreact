@@ -6,8 +6,11 @@ mod config;
 mod convert;
 mod files;
 
-#[cfg(feature = "watch")]
+#[cfg(feature = "dev")]
 mod server;
+
+#[macro_use]
+extern crate cfg_if;
 
 use std::collections::HashMap;
 
