@@ -85,6 +85,7 @@ mod config;
 mod convert;
 mod error;
 mod files;
+mod routes;
 
 #[cfg(feature = "dev")]
 mod server;
@@ -94,7 +95,10 @@ extern crate cfg_if;
 
 pub use serde_json::Value;
 
-pub use crate::{config::Config, error::{Error, IoError}};
+pub use crate::{
+    config::Config,
+    error::{Error, IoError},
+};
 
 /// Represents json-like object
 /// A map of string keys to json values
