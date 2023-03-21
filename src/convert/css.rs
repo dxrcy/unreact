@@ -2,6 +2,7 @@ use css_minify::optimizations as css_minify;
 
 use crate::Error;
 
+/// Convert SCSS file to CSS, and minify
 pub fn scss_to_css(name: &str, scss: &str, minify: bool) -> Result<String, Error> {
     // Convert scss to css
     let css = try_unwrap!(

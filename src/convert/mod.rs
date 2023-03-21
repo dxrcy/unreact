@@ -5,6 +5,7 @@ use handlebars::Handlebars;
 
 use crate::{Error, FileMap, Object, Page, Value};
 
+/// Render a page, using either a Handlebars template or a raw string, and minify
 pub(crate) fn render_page(
     registry: &mut Handlebars,
     name: &str,
@@ -53,6 +54,7 @@ pub(crate) fn render_page(
     Ok(rendered)
 }
 
+/// Register custom Handlebars templates onto registry
 pub fn register_templates(registry: &mut Handlebars, templates: FileMap) -> Result<(), Error> {
     for (name, template) in templates {
         try_unwrap!(
@@ -64,19 +66,30 @@ pub fn register_templates(registry: &mut Handlebars, templates: FileMap) -> Resu
     Ok(())
 }
 
+/// Register inbuilt Handlebars templates onto registry
 pub fn register_inbuilt_templates(registry: &mut Handlebars, url: &str) -> Result<(), Error> {
     let inbuilt_templates: &[(&str, &str)] = &[
         // Base url for site
         ("URL", url),
-        // Simple style tag
+        // Local link
+        (
+            "LINK",
+            r#"<a href="{{>URL}}/{{to}}"> {{>@partial-block}} </a>"#,
+        ),
+        // Local css style tag
         (
             "CSS",
             r#"<link rel="stylesheet" href="{{>URL}}/styles/{{name}}/style.css" />"#,
         ),
-        // Simple link
+        // Local image icon
         (
-            "LINK",
-            r#"<a href="{{>URL}}/{{to}}"> {{>@partial-block}} </a>"#,
+            "ICON",
+            r#"<link rel="shortcut icon" href="{{>URL}}/public/{{name}}" />"#,
+        ),
+        // Boilerplate meta tags
+        (
+            "META",
+            r#"<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />"#,
         ),
     ];
 
