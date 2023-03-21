@@ -1,3 +1,35 @@
+/// Create a json-like 'object':
+/// A map of string keys to json values
+///
+/// `unreact::Object` is a type alias for `serde_json::Map<String, serde_json::Value>`
+///
+/// Similar to `serde_json::json!` macro, but must be an object
+///
+/// # Examples
+///
+/// ```
+/// # use unreact::object;
+/// object! {
+///     foo: 123,
+///     bar: vec![4, 5, 6],
+///     // Nested objects must also use `object!` macro
+///     nested: object! {
+///         key: "value"
+///     }
+/// };
+/// ```
+///
+/// The above code is equivalent to this json:
+///
+/// ```json
+/// {
+///     "foo": 123,
+///     "bar": [4, 5, 6],
+///     "nested": {
+///         "key": "value"
+///     }
+/// }
+/// ```
 #[macro_export]
 macro_rules! object {
     {} => { $crate::Object::new() };
@@ -13,6 +45,10 @@ macro_rules! object {
     }};
 }
 
+/// Try to unwrap a `Result`, returns value in `Ok` variant
+///
+/// If result is `Err`, then run code block
+/// Similar to a `let else` statement, but captures the value inside the `Err` variant
 macro_rules! try_unwrap {
     (
         $option: expr,
@@ -53,16 +89,18 @@ mod tests {
     fn object_macro_works() {
         let mut obj = Object::new();
         obj.insert("abc".to_string(), Value::from(123));
+        obj.insert("array".to_string(), Value::from(vec![4, 5, 6]));
 
         assert_eq!(
             object! {
-                abc: Value::from(123)
+                abc: 123,
+                array: Value::from(vec![4, 5, 6]),
             },
             obj
         );
 
         let mut obj = Object::new();
-        obj.insert("abc".to_string(), Value::from(123));
+        obj.insert("abc".to_string(), Value::from("abcdef"));
 
         let mut obj2 = Object::new();
         obj2.insert("ghi".to_string(), Value::from(456));
@@ -71,9 +109,9 @@ mod tests {
 
         assert_eq!(
             object! {
-                abc: Value::from(123),
+                abc: Value::from("abcdef"),
                 def: Value::from(object!{
-                    ghi: Value::from(456),
+                    ghi: 456,
                 }),
             },
             obj

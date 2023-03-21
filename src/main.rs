@@ -15,7 +15,7 @@ fn main() -> Result<(), Error> {
     });
 
     app.index("page", object! {message: "World"})
-        .route_exact("hello", "this is my hello page".to_string())
+        .route_raw("hello", "this is my hello page".to_string())
         .route_bare("article", "other/article");
 
     app.run()?;
