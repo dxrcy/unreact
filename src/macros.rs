@@ -13,13 +13,6 @@ macro_rules! object {
     }};
 }
 
-//TODO Remove!
-macro_rules! throw {
-    ( $lit: literal $(, $arg: expr )* ) => {
-        return Err($crate::Error::Generic(format!($lit, $( $arg ),*)))
-    };
-}
-
 macro_rules! try_unwrap {
     (
         $option: expr,
@@ -42,6 +35,13 @@ macro_rules! try_unwrap {
             // Brackets cannot be removed
             #[rustfmt::skip] Err($err) => { $stmt },
         }
+    };
+}
+
+//TODO Remove!
+macro_rules! throw {
+    ( $lit: literal $(, $arg: expr )* ) => {
+        return Err($crate::Error::Generic(format!($lit, $( $arg ),*)))
     };
 }
 
@@ -78,5 +78,32 @@ mod tests {
             },
             obj
         );
+    }
+
+    #[test]
+    fn try_unwrap_works() {
+        let result: Result<i32, &str> = Ok(123);
+        let value = try_unwrap!( result,
+            else Err(_err) => {
+                panic!("Should not be Err")
+            }
+        );
+        assert_eq!(value, 123);
+
+        let result: Result<i32, &str> = Err("oh no!");
+        let value = try_unwrap!( result,
+            else Err(_err) => {
+                456
+            }
+        );
+        assert_eq!(value, 456);
+
+        let result: Result<i32, &str> = Err("oh no!");
+        let _value = try_unwrap!( result,
+            else Err(_err) => {
+                return;
+            }
+        );
+        panic!("Should not have been Ok");
     }
 }

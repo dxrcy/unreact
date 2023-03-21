@@ -1,40 +1,9 @@
-use css_minify::optimizations as css_minify;
+mod css;
+pub use css::scss_to_css;
+
 use handlebars::Handlebars;
 
 use crate::{FileMap, Object, Page, Result, Value};
-
-pub fn scss_to_css(name: &str, scss: &str, minify: bool) -> Result<String> {
-    // Convert scss to css
-    let css = try_unwrap!(
-        grass::from_string(scss, &Default::default()),
-
-        else Err(err) => {
-            throw!(
-                "SCSS to CSS Error! Problem with scss file '{}' `{:?}`",
-                name,
-                err
-            )
-        }
-    );
-
-    // Minify
-    if minify {
-        return Ok(try_unwrap!(
-            css_minify::Minifier::default().minify(&css, css_minify::Level::Two),
-
-            else Err(err) => {
-                throw!(
-                    "CSS minify error! Problem with scss file '{}' `{:?}`",
-                    name,
-                    err
-                )
-            }
-        ));
-    }
-
-    // Don't minify
-    return Ok(css);
-}
 
 pub(crate) fn render_page(
     registry: &mut Handlebars,

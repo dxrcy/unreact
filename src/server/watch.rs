@@ -20,8 +20,11 @@ pub fn watch<F>(router: F)
 where
     F: Fn(),
 {
-    let event_hub = simple_websockets::launch(WS_PORT)
-        .unwrap_or_else(|_| panic!("Failed to initialize websockets on port {}", WS_PORT));
+    let event_hub = unwrap!(
+        simple_websockets::launch(WS_PORT),
+        err: "Failed to initialize websockets on port {} `{err:?}`",
+        WS_PORT
+    );
 
     let clients = Arc::new(Mutex::new(HashMap::<u64, Responder>::new()));
 
@@ -48,39 +51,42 @@ where
 
     let (tx, rx) = channel();
 
-    let mut watcher = notify::recommended_watcher(tx).expect("Could not create watcher");
+    let mut watcher =
+        unwrap!(notify::recommended_watcher(tx), err: "Could not create file watcher `{err:?}`");
 
     let folders = ["templates", "styles", "public"];
     for folder in folders {
-        watcher
-            .watch(Path::new(folder), RecursiveMode::Recursive)
-            .unwrap_or_else(|_| panic!("Could not watch folder '{}'", folder));
+        unwrap!(
+            watcher.watch(Path::new(folder), RecursiveMode::Recursive),
+            err: "Could not watch folder '{}' `{err:?}`",
+            folder
+        )
     }
 
     let mut last_compile = Utc::now().timestamp();
 
     let clients_clone = clients;
     loop {
-        let event = rx.recv().expect("idk! #1").expect("idk! #2");
+        if let Ok(Ok(event)) = rx.recv() {
+            if matches!(
+                event.kind,
+                EventKind::Create(_) | EventKind::Modify(_) | EventKind::Remove(_)
+            ) {
+                let now = Utc::now().timestamp();
 
-        if matches!(
-            event.kind,
-            EventKind::Create(_) | EventKind::Modify(_) | EventKind::Remove(_)
-        ) {
-            let now = Utc::now().timestamp();
+                if last_compile + (MIN_RECOMPILE_INTERVAL as i64) < now {
+                    last_compile = now;
 
-            if last_compile + (MIN_RECOMPILE_INTERVAL as i64) < now {
-                last_compile = now;
+                    // ???? why ????
+                    thread::sleep(Duration::from_millis(300));
 
-                // ???? why ????
-                thread::sleep(Duration::from_millis(300));
+                    router();
 
-                router();
+                    let clients_ref = clients_clone.lock().unwrap();
 
-                let clients_ref = clients_clone.lock().unwrap();
-
-                for (_id, client) in clients_ref.iter() {
-                    client.send(simple_websockets::Message::Text("reload".to_string()));
+                    for (_id, client) in clients_ref.iter() {
+                        client.send(simple_websockets::Message::Text("reload".to_string()));
+                    }
                 }
             }
         }

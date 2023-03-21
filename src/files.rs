@@ -2,10 +2,6 @@ use std::{fs, path::Path};
 
 use crate::{Config, FileMap, Result};
 
-pub fn get_filename(full_name: &str) -> Option<&str> {
-    full_name.split('.').next()
-}
-
 pub fn check_src_folders(config: &Config) -> Result {
     let src_folders = [&config.templates, &config.public, &config.styles];
     for folder in src_folders {
@@ -49,9 +45,7 @@ fn load_filemap(map: &mut FileMap, root: &str, parent: &str) -> Result {
             continue;
         }
 
-        let Some(name) = get_filename(name) else {
-            continue;
-        };
+        let name = get_filename(name);
 
         let content = try_unwrap!(
             fs::read_to_string(&path),
@@ -105,4 +99,21 @@ pub fn clean_build_dir(config: &Config) -> Result {
     );
 
     Ok(())
+}
+
+pub fn get_filename(full_name: &str) -> &str {
+    full_name.split('.').next().unwrap_or("")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn get_filename_works() {
+        assert_eq!(get_filename("abc"), "abc");
+        assert_eq!(get_filename("abc.txt"), "abc");
+        assert_eq!(get_filename("abc.def.txt"), "abc");
+        assert_eq!(get_filename(""), "");
+    }
 }

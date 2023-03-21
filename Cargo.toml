@@ -46,6 +46,12 @@ chrono = { version = "0.4.24", optional = true }
 thiserror = "1.0.40"
 
 [features]
-# default = ["dev"]
-dev = ["dep:http", "dep:hyper", "dep:tokio", "dep:notify", "dep:notify-debouncer-mini", "dep:simple-websockets", "dep:chrono"]
-watch = ["dev"]
+default = ["watch"]
+dev = ["dep:http", "dep:hyper", "dep:tokio"]
+watch = [
+    "dev",
+    "dep:notify",
+    "dep:notify-debouncer-mini",
+    "dep:simple-websockets",
+    "dep:chrono",
+]
