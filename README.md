@@ -8,12 +8,22 @@ Submit issue [here](https://github.com/darccyy/unreact/issues/new)
 
 For a quick start, check out [Unreact Template](https://github.com/darccyy/unreact-template)
 
+## Development
+
+```toml
+unreact = {version = "*"}
+```
+
+```bash
+cargo run -- --dev
+```
+
 ## Production
 
 ```toml
-unreact = {version = "*", no-default-features = true}
+unreact = {version = "*", default-features = false}
 ```
 
-## Development
-
-## GitHub Pages
+```bash
+cargo run
+```
