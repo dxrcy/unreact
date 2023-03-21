@@ -51,7 +51,6 @@ impl Unreact {
     ///     let config = Config {
     ///         // Strict mode enabled
     ///         strict: true,
-    ///         # build: ".devbuild/a".to_string(),
     ///         ..Config::default()
     ///     };
     ///
