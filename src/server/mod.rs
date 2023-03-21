@@ -105,7 +105,7 @@ fn get_best_possible_file(path: &str) -> Option<Body> {
     let possible_suffixes = possible_path_suffixes(path);
 
     for suffix in possible_suffixes {
-        let path = &format!("./{DEV_BUILD_DIR}/{path}/{suffix}");
+        let path = &format!("{DEV_BUILD_DIR}/{path}/{suffix}");
 
         // If file exists, and not directory
         if Path::new(path).is_file() {

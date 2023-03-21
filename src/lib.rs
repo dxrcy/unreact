@@ -134,7 +134,7 @@ enum Page {
 ///
 /// # Examples
 ///
-/// ```
+/// ```rust,no_run
 /// use unreact::prelude::*;
 ///
 /// const URL: &str = "https://example.com";

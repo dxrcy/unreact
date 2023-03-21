@@ -1,5 +1,8 @@
 # TODO
 
+- Use `stilo` for print messages
+- Add `open` option (in config?) for auto open in browser
+
 ## What?
 
 -   Fix ordered list numbers
