@@ -9,7 +9,6 @@
 ## Later...
 
 -   Add `open` option (in config?) for auto open in browser
--   Add examples folder
 
 # Maybe
 

@@ -1,7 +1,7 @@
 <!-- *** This file is in DEVELOPMENT MODE! *** -->
 
 <script>
-    console.warn("This document is in *development mode*\nDocument will reload automatically.");
+    console.log("This document is in *development mode*\nDocument will reload automatically.");
     
     /* Websocket stuff */
     let ws;
@@ -17,7 +17,7 @@
         };
 
         ws.onclose = error => {
-            console.warn("WS: Server closed");
+            console.log("WS: Server closed");
             reconnect();
         };
 

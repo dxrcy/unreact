@@ -46,13 +46,13 @@ where
             match event {
                 // Client connected, add to list
                 Event::Connect(id, responder) => {
-                    println!("Connect #{}", id);
+                    // println!("Connect #{}", id);
                     clients.insert(id, responder);
                 }
 
                 // Client disconnected, remove from list
                 Event::Disconnect(id) => {
-                    println!("Disconnect #{}", id);
+                    // println!("Disconnect #{}", id);
                     clients.remove(&id);
                 }
 
