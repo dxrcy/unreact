@@ -94,7 +94,7 @@ extern crate cfg_if;
 
 pub use serde_json::Value;
 
-pub use crate::{config::Config, error::Error};
+pub use crate::{config::Config, error::{Error, IoError}};
 
 /// Represents json-like object
 /// A map of string keys to json values
@@ -110,11 +110,6 @@ use std::collections::HashMap;
 type FileMap = HashMap<String, String>;
 /// Map a path to a `Page` enum
 type Pages = HashMap<String, Page>;
-
-/// Alias
-///
-/// TODO Remove
-type Result<T = ()> = std::result::Result<T, Error>;
 
 /// Build directory for *dev mode*
 ///

@@ -1,33 +1,19 @@
 use css_minify::optimizations as css_minify;
 
-use crate::Result;
+use crate::Error;
 
-pub fn scss_to_css(name: &str, scss: &str, minify: bool) -> Result<String> {
+pub fn scss_to_css(name: &str, scss: &str, minify: bool) -> Result<String, Error> {
     // Convert scss to css
     let css = try_unwrap!(
         grass::from_string(scss, &Default::default()),
-
-        else Err(err) => {
-            throw!(
-                "SCSS to CSS Error! Problem with scss file '{}' `{:?}`",
-                name,
-                err
-            )
-        }
+        else Err(err) => return fail!(ScssConvert, name.to_string(), *err),
     );
 
     // Minify
     if minify {
         return Ok(try_unwrap!(
             css_minify::Minifier::default().minify(&css, css_minify::Level::Two),
-
-            else Err(err) => {
-                throw!(
-                    "CSS minify error! Problem with scss file '{}' `{:?}`",
-                    name,
-                    err
-                )
-            }
+            else Err(err) => return fail!(CssMinify, name.to_string(), err.to_string()),
         ));
     }
 

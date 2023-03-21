@@ -3,7 +3,7 @@ pub use css::scss_to_css;
 
 use handlebars::Handlebars;
 
-use crate::{FileMap, Object, Page, Result, Value};
+use crate::{Error, FileMap, Object, Page, Value};
 
 pub(crate) fn render_page(
     registry: &mut Handlebars,
@@ -12,7 +12,7 @@ pub(crate) fn render_page(
     globals: Object,
     #[allow(unused_variables)] is_dev: bool,
     minify: bool,
-) -> Result<String> {
+) -> Result<String, Error> {
     let mut rendered = match page {
         Page::Raw(page) => page.to_string(),
 
@@ -24,7 +24,7 @@ pub(crate) fn render_page(
             // Render template
             try_unwrap!(
                 registry.render(template, &data),
-                else Err(err) => throw!("Handlebars failed! Rendering '{}' `{:?}`", name, err),
+                else Err(err) => return fail!(RenderTemplate, name.to_string(), err),
             )
         }
     };
@@ -53,22 +53,18 @@ pub(crate) fn render_page(
     Ok(rendered)
 }
 
-pub fn register_templates(registry: &mut Handlebars, templates: FileMap) -> Result {
+pub fn register_templates(registry: &mut Handlebars, templates: FileMap) -> Result<(), Error> {
     for (name, template) in templates {
         try_unwrap!(
             registry.register_partial(&name, template),
-            else Err(err) => throw!(
-                "Handlebars error! Registering template '{}', `{:?}`",
-                name,
-                err
-            )
+            else Err(err) => return fail!(RegisterTemplate, name, err),
         );
     }
 
     Ok(())
 }
 
-pub fn register_inbuilt_templates(registry: &mut Handlebars, url: &str) -> Result {
+pub fn register_inbuilt_templates(registry: &mut Handlebars, url: &str) -> Result<(), Error> {
     let inbuilt_templates: &[(&str, &str)] = &[
         // Base url for site
         ("URL", url),
@@ -87,11 +83,7 @@ pub fn register_inbuilt_templates(registry: &mut Handlebars, url: &str) -> Resul
     for (name, template) in inbuilt_templates {
         try_unwrap!(
             registry.register_partial(name, template),
-            else Err(err) => throw!(
-                "Handlebars error! Registering inbuilt template '{}', `{:?}`",
-                name,
-                err
-            )
+            else Err(err) => return fail!(RegisterInbuiltTemplate, name.to_string(), err),
         );
     }
 

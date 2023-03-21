@@ -1,13 +1,13 @@
 use std::{fs, path::Path};
 
-use crate::{Config, FileMap, Result};
+use crate::{Config, Error, FileMap};
 
 /// Returns `Err` if source folders are not found in the working directory
-pub fn check_source_folders(config: &Config) -> Result {
+pub fn check_source_folders(config: &Config) -> Result<(), Error> {
     let src_folders = [&config.templates, &config.public, &config.styles];
     for folder in src_folders {
         if !Path::new(&folder).is_dir() {
-            throw!("Directory not exist! '{}'", folder);
+            return Err(Error::SourceDirectoryNotExist(folder.to_string()));
         }
     }
     Ok(())
@@ -18,7 +18,7 @@ pub fn check_source_folders(config: &Config) -> Result {
 /// Returns a hashmap of filepath strings (relative to the given directory), and file contents
 ///
 /// Returns `Err` if cannot read a file or folder children
-pub fn read_folder_recurse(folder: &str) -> Result<FileMap> {
+pub fn read_folder_recurse(folder: &str) -> Result<FileMap, Error> {
     let mut filemap = FileMap::new();
     load_filemap(&mut filemap, folder, "")?;
     Ok(filemap)
@@ -30,19 +30,14 @@ pub fn read_folder_recurse(folder: &str) -> Result<FileMap> {
 /// - For every *folder* in the given directory, recurse this function, with the 'parent' folder as this folder
 ///
 /// Returns `Err` if cannot read a file or folder children
-fn load_filemap(map: &mut FileMap, root: &str, parent: &str) -> Result {
+fn load_filemap(map: &mut FileMap, root: &str, parent: &str) -> Result<(), Error> {
     // Full path relative to working directory
     let full_path = format!("{root}/{parent}/");
 
     // Children of current directory
     let children = try_unwrap!(
         fs::read_dir(&full_path),
-
-        else Err(err) => throw!(
-            "IO Error! Could not read director '{}' `{:?}`",
-            full_path,
-            err
-        ),
+        else Err(err) => return io_fail!(ReadDir, full_path, err),
     );
 
     // Loop child files and folders
@@ -67,7 +62,7 @@ fn load_filemap(map: &mut FileMap, root: &str, parent: &str) -> Result {
         // Read file contents
         let content = try_unwrap!(
             fs::read_to_string(&path),
-            else Err(err) => throw!("IO Error! Could not read file '{}' `{:?}`", path, err),
+            else Err(err) => return io_fail!(ReadFile, path, err),
         );
 
         // Insert file and contents to hashmap
@@ -85,16 +80,12 @@ fn load_filemap(map: &mut FileMap, root: &str, parent: &str) -> Result {
 /// 2. Creates build folder
 /// 3. Creates `styles/` and `public/` inside build folder
 /// 4. Copies all files from public source folder into `public/` inside build folder
-pub fn clean_build_dir(config: &Config) -> Result {
+pub fn clean_build_dir(config: &Config) -> Result<(), Error> {
     // Remove build folder (if exists)
     if Path::new(&config.build).exists() {
         try_unwrap!(
             fs::remove_dir_all(&config.build),
-            else Err(err) => throw!(
-                "IO Error! Could not remove build directory '{}' `{:?}`",
-                config.build,
-                err
-            )
+            else Err(err) => return io_fail!(RemoveDir, config.build.clone(), err),
         );
     }
 
@@ -105,24 +96,14 @@ pub fn clean_build_dir(config: &Config) -> Result {
 
         try_unwrap!(
             fs::create_dir_all(&path),
-
-            else Err(err) => throw!(
-                "IO Error! Could not create directory in build folder '{}' `{:?}`",
-                path,
-                err
-            )
+            else Err(err) => return io_fail!(CreateDir, path, err),
         );
     }
 
     // Recursively copy public directory
     try_unwrap!(
         dircpy::copy_dir(&config.public, format!("{}/public", config.build)),
-
-        else Err(err) => throw!(
-            "IO Error! Could not copy public directory '{}' `{:?}`",
-            config.public,
-            err
-        )
+        else Err(err) => return io_fail!(CopyDir, config.public.clone(), err),
     );
 
     Ok(())

@@ -7,7 +7,7 @@ use crate::server;
 use crate::{
     convert::{register_inbuilt_templates, register_templates, render_page, scss_to_css},
     files::{check_source_folders, clean_build_dir, read_folder_recurse},
-    object, Config, Object, Page, Pages, Result, Unreact, DEV_BUILD_DIR,
+    object, Config, Error, Object, Page, Pages, Unreact, DEV_BUILD_DIR,
 };
 
 impl Unreact {
@@ -20,7 +20,7 @@ impl Unreact {
     /// - `url`: The url that should be given to rendered templates. Overridden in *dev mode*
     ///
     /// TODO Examples
-    pub fn new(mut config: Config, is_dev: bool, url: &str) -> Result<Self> {
+    pub fn new(mut config: Config, is_dev: bool, url: &str) -> Result<Self, Error> {
         // Use dev build directory if dev mode is active
         if is_dev {
             config.build = DEV_BUILD_DIR.to_string();
@@ -129,7 +129,7 @@ impl Unreact {
     /// Does not open a dev server, even in *dev mode*
     ///
     /// TODO Examples
-    pub fn compile(&self) -> Result {
+    pub fn compile(&self) -> Result<(), Error> {
         clean_build_dir(&self.config)?;
 
         let mut registry = Handlebars::new();
@@ -148,11 +148,7 @@ impl Unreact {
 
             try_unwrap!(
                 fs::create_dir_all(&path),
-                else Err(err) => throw!(
-                    "IO Error! Could not create a folder in the build directory '{}', `{:?}`",
-                    path,
-                    err
-                )
+                else Err(err) => return io_fail!(CreateDir, path, err),
             );
 
             let content = render_page(
@@ -167,11 +163,7 @@ impl Unreact {
             let path = format!("{path}/index.html");
             try_unwrap!(
                 fs::write(&path, content),
-                else Err(err) => throw!(
-                    "IO Error! Could not write file in build directory '{}' `{:?}`",
-                    path,
-                    err
-                )
+                else Err(err) => return io_fail!(WriteFile, path, err),
             );
         }
 
@@ -180,11 +172,7 @@ impl Unreact {
             let parent = format!("{}/{}/{}", self.config.build, self.config.styles, name);
             try_unwrap!(
                 fs::create_dir_all(&parent),
-                else Err(err) => throw!(
-                    "IO Error! Could not create folder in styles build directory '{}' `{:?}`",
-                    parent,
-                    err
-                )
+                else Err(err) => return io_fail!(CreateDir, parent, err),
             );
 
             let css = scss_to_css(&name, &scss, self.config.minify)?;
@@ -192,7 +180,7 @@ impl Unreact {
             let path = format!("{}/style.css", parent);
             try_unwrap!(
                 fs::write(&path, css),
-                else Err(err) => throw!("IO Error! Could not write css file '{}' `{:?}`", path, err)
+                else Err(err) => return io_fail!(WriteFile, path, err),
             );
         }
 
@@ -217,7 +205,7 @@ impl Unreact {
     ///
     /// TODO Examples
     #[cfg(feature = "dev")]
-    pub fn run(&self) -> Result {
+    pub fn run(&self) -> Result<(), Error> {
         if !self.is_dev {
             return self.compile();
         }

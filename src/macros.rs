@@ -74,10 +74,23 @@ macro_rules! try_unwrap {
     };
 }
 
-//TODO Remove!
-macro_rules! throw {
-    ( $lit: literal $(, $arg: expr )* ) => {
-        return Err($crate::Error::Generic(format!($lit, $( $arg ),*)))
+/// Shorthand for `Err(crate::Error...)`
+macro_rules! fail {
+    ( $kind: ident ) => {
+        Err($crate::Error::$kind)
+    };
+    ( $kind: ident, $( $arg: expr ),* ) => {
+        Err($crate::Error::$kind( $( $arg ),* ))
+    };
+}
+
+/// Shorthand for `Err(crate::Error::IoFail(crate::IoError...))`
+macro_rules! io_fail {
+    ( $kind: ident ) => {
+        Err($crate::Error::IoFail($crate::IoError::$kind))
+    };
+    ( $kind: ident, $( $arg: expr ),* ) => {
+        Err($crate::Error::IoFail($crate::IoError::$kind( $( $arg ),* )))
     };
 }
 
