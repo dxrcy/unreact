@@ -105,7 +105,7 @@ fn get_best_possible_file(path: &str) -> Option<Body> {
     let possible_suffixes = possible_path_suffixes(path);
 
     for suffix in possible_suffixes {
-        let path = &format!("{DEV_BUILD_DIR}/{path}/{suffix}");
+        let path = &format!("{DEV_BUILD_DIR}{path}{suffix}");
 
         // If file exists, and not directory
         if Path::new(path).is_file() {
@@ -130,7 +130,7 @@ fn get_best_possible_file(path: &str) -> Option<Body> {
 /// Otherwise, return a slice of: an empty string (for a literal file), '.html', and '/index.html' (for file path shorthand).
 /// Suffixes are returned in that order, to match a file based on specificity
 fn possible_path_suffixes(path: &str) -> &'static [&'static str] {
-    if path.ends_with(".html") || path.starts_with("/styles") || path.starts_with("/public") {
+    if path.ends_with(".html") || path.starts_with("/styles/") || path.starts_with("/public/") {
         &[""]
     } else {
         &["", ".html", "/index.html"]

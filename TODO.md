@@ -1,7 +1,6 @@
 # TODO
 
-- Use `stilo` for print messages
-- Add `open` option (in config?) for auto open in browser
+-   Use `stilo` for print messages
 
 ## What?
 
@@ -9,9 +8,10 @@
 
 ## Later...
 
--   Add issue templates
+-   Add `open` option (in config?) for auto open in browser
 -   Add examples folder
 
 # Maybe
 
 -   Option to include `.html` and `/index.html` in links?
+-   Use env var for server logging ?
