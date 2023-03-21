@@ -6,13 +6,15 @@ mod watch;
 #[cfg(feature = "watch")]
 pub use watch::watch;
 
-use crate::DEV_BUILD_DIR;
+use std::{convert::Infallible, fs, path::Path};
+
 use http::{Method, Request, Response, StatusCode};
 use hyper::{
     service::{make_service_fn, service_fn},
     Body, Server,
 };
-use std::{convert::Infallible, fs, path::Path};
+
+use crate::DEV_BUILD_DIR;
 
 /// Local port to host dev server (on localhost)
 pub const SERVER_PORT: u16 = 3000;

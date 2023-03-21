@@ -4,7 +4,7 @@ use handlebars::Handlebars;
 
 use crate::{
     convert::{register_inbuilt_templates, register_templates, render_page, scss_to_css},
-    files::{check_src_folders, clean_build_dir, load_folder_recurse},
+    files::{check_source_folders, clean_build_dir, read_folder_recurse},
     object, Config, Object, Page, Pages, Result, Unreact, DEV_BUILD_DIR,
 };
 
@@ -17,7 +17,7 @@ impl Unreact {
             config.build = DEV_BUILD_DIR.to_string();
         }
 
-        check_src_folders(&config)?;
+        check_source_folders(&config)?;
 
         Ok(Self {
             config,
@@ -72,7 +72,7 @@ impl Unreact {
 
         register_inbuilt_templates(&mut registry, &self.url)?;
 
-        let templates = load_folder_recurse(&self.config.templates)?;
+        let templates = read_folder_recurse(&self.config.templates)?;
         register_templates(&mut registry, templates)?;
 
         for (name, page) in &self.pages {
@@ -107,7 +107,7 @@ impl Unreact {
             );
         }
 
-        let styles = load_folder_recurse(&self.config.styles)?;
+        let styles = read_folder_recurse(&self.config.styles)?;
         for (name, scss) in styles {
             let parent = format!("{}/{}/{}", self.config.build, self.config.styles, name);
             try_unwrap!(
