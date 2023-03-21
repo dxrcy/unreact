@@ -212,7 +212,7 @@ impl Unreact {
     ///
     /// Add `features = "dev"` or `features = "watch"` to the `unreact` dependency in `Cargo.toml` to use the 'dev server'
     #[cfg(not(feature = "dev"))]
-    pub fn run(&self) -> Result {
+    pub fn run(&self) -> Result<(), Error> {
         self.compile()
     }
 

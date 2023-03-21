@@ -45,7 +45,7 @@ simple-websockets = { version = "0.1.5", optional = true }
 chrono = { version = "0.4.24", optional = true }
 
 [features]
-default = ["watch"]
+default = ["dev"]
 dev = ["dep:http", "dep:hyper", "dep:tokio"]
 watch = [
     "dev",

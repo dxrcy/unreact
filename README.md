@@ -1,12 +1,18 @@
 # Unreact
 
-Overhauled version `0.2.0` ([old version](https://github.com/darccyy/unreact-old))
+A static site generation framework for Rust using Handlebars and Scss.
 
-<!-- TODO ! -->
+Submit issue [here](https://github.com/darccyy/unreact/issues/new)
 
 # Usage
 
+<!-- For a quick start, check out [Unreact Template](https://github.com/darccyy/unreact-template) -->
+
 ## Production
+
+```toml
+unreact = {version = "*", no-default-features = true}
+```
 
 ## Development
 

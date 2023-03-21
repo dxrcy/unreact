@@ -37,8 +37,8 @@ const FALLBACK_404: &str = const_str::concat!(include_str!("404.html"), "\n\n", 
 pub fn listen() {
     // Create runtime
     let runtime = unwrap!(
-        tokio::runtime::Builder::new_multi_thread()
-            .enable_all()
+        tokio::runtime::Builder::new_current_thread()
+            .enable_io()
             .build(),
         "Failed to build tokio runtime"
     );
