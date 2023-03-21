@@ -2,6 +2,7 @@ use std::io;
 
 use thiserror::Error;
 
+/// Error type for `Unreact`
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("IO Fail: {0}")]
@@ -11,24 +12,22 @@ pub enum Error {
     SourceDirectoryNotExist(String),
 
     #[error("Failed to convert SCSS file '{0}' to CSS `{1:?}`")]
-    ScssConvert(String, grass::Error),
+    ScssConvert(String, Box<grass::Error>),
 
     #[error("Failed to minify CSS file '{0}' `{1:?}`")]
     CssMinify(String, String),
 
     #[error("Failed to render handlebars template '{0}' `{1:?}`")]
-    RenderTemplate(String, handlebars::RenderError),
+    RenderTemplate(String, Box<handlebars::RenderError>),
 
     #[error("Failed to register handlebars template '{0}' `{1:?}`")]
-    RegisterTemplate(String, handlebars::TemplateError),
+    RegisterTemplate(String, Box<handlebars::TemplateError>),
 
     #[error("Failed to register *inbuilt* handlebars template '{0}' `{1:?}`")]
-    RegisterInbuiltTemplate(String, handlebars::TemplateError),
-
-    #[error("Generic error! `{0}`")]
-    Generic(String),
+    RegisterInbuiltTemplate(String, Box<handlebars::TemplateError>),
 }
 
+/// Error type for `Unreact`, relating to IO fails
 #[derive(Debug, Error)]
 pub enum IoError {
     #[error("Reading file '{0}' `{1}`")]

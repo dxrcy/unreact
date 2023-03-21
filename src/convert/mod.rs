@@ -24,7 +24,7 @@ pub(crate) fn render_page(
             // Render template
             try_unwrap!(
                 registry.render(template, &data),
-                else Err(err) => return fail!(RenderTemplate, name.to_string(), err),
+                else Err(err) => return fail!(RenderTemplate, name.to_string(), Box::new(err)),
             )
         }
     };
@@ -57,7 +57,7 @@ pub fn register_templates(registry: &mut Handlebars, templates: FileMap) -> Resu
     for (name, template) in templates {
         try_unwrap!(
             registry.register_partial(&name, template),
-            else Err(err) => return fail!(RegisterTemplate, name, err),
+            else Err(err) => return fail!(RegisterTemplate, name, Box::new(err)),
         );
     }
 
@@ -83,7 +83,7 @@ pub fn register_inbuilt_templates(registry: &mut Handlebars, url: &str) -> Resul
     for (name, template) in inbuilt_templates {
         try_unwrap!(
             registry.register_partial(name, template),
-            else Err(err) => return fail!(RegisterInbuiltTemplate, name.to_string(), err),
+            else Err(err) => return fail!(RegisterInbuiltTemplate, name.to_string(), Box::new(err)),
         );
     }
 

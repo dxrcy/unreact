@@ -6,7 +6,7 @@ pub fn scss_to_css(name: &str, scss: &str, minify: bool) -> Result<String, Error
     // Convert scss to css
     let css = try_unwrap!(
         grass::from_string(scss, &Default::default()),
-        else Err(err) => return fail!(ScssConvert, name.to_string(), *err),
+        else Err(err) => return fail!(ScssConvert, name.to_string(), err),
     );
 
     // Minify
