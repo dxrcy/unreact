@@ -1,6 +1,6 @@
 [package]
 name = "unreact"
-version = "0.2.0-alpha4"
+version = "0.2.0-alpha5"
 edition = "2021"
 description = "A static site generation framework for Rust using Handlebars and Scss."
 license = "MIT"
@@ -45,7 +45,7 @@ simple-websockets = { version = "0.1.5", optional = true }
 chrono = { version = "0.4.24", optional = true }
 
 [features]
-default = ["dev"]
+default = ["watch"]
 dev = ["dep:http", "dep:hyper", "dep:tokio"]
 watch = [
     "dev",

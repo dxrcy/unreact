@@ -94,7 +94,7 @@ where
 
         // If enough time has passed since last reload
         let now = Utc::now().timestamp();
-        if last_compile + (MIN_RECOMPILE_INTERVAL as i64) < now {
+        if last_compile + (MIN_RECOMPILE_INTERVAL as i64) > now {
             continue;
         }
         last_compile = now;
