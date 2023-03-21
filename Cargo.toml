@@ -6,7 +6,6 @@ description = "A static site generation framework for Rust using Handlebars and 
 license = "MIT"
 exclude = [
     "build",
-    "docs",
     ".devbuild",
     "templates",
     "styles",
