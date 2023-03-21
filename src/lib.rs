@@ -1,4 +1,82 @@
-///! A static site generation library
+//! # Unreact
+//!
+//! [Unreact](https://github.com/darccyy/unreact) is a simple static site generation framework
+//!
+//! ## Quick Start
+//!
+//! See also: [examples](https://github.com/darccyy/unreact/tree/main/examples)
+//! and [unreact template](https://github.com/darccyy/unreact-template)
+//!
+//! Create an site with a single index page
+//!
+//! ```
+//! use unreact::prelude::*;
+//!
+//! fn main() -> Result<(), Error> {
+//!    // Create the app
+//!    // Using default config, not in dev mode, and an example url
+//!    let mut app = Unreact::new(Config::default(), false, "https://example.com")?;
+//!    // Create an index route
+//!    // This uses the template 'page.hbs' in 'templates/'
+//!    // A json object with a value for 'foo' is passed into the template
+//!    app.index("page", object! { foo: "World!" });
+//!    // Compile it!
+//!    app.compile()
+//! }
+//! ```
+//!
+//! Your workspace should look something like this:
+//!
+//! ```txt
+//! unreact-app/
+//!   ├─ Cargo.toml
+//!   ├─ src/
+//!   │  └─ main.rs
+//!   │
+//!   ├─ templates/
+//!   │  └─ page.hbs
+//!   │
+//!   ├─ styles/
+//!   └─ public/
+//! ```
+//!
+//! This is the contents of `templates/page.hbs`:
+//!
+//! ```hbs
+//! <h1> Hello {{foo}} </h1>
+//! ```
+//!
+//! This will render `build/index.html`:
+//!
+//! ```html
+//! <h1> Hello World! </h1>
+//! ```
+//!
+//! A larger project could look something like this:
+//!
+//! ```txt
+//! unreact-app/
+//!   ├─ Cargo.toml
+//!   ├─ src/
+//!   │  └─ main.rs
+//!   │
+//!   ├─ templates/
+//!   │  ├─ boilerplate.hbs
+//!   │  ├─ hello.hbs
+//!   │  ├─ other/
+//!   │  │  ├─ another/
+//!   │  │  │  └─ something.hbs
+//!   │  │  └─ article.hbs
+//!   │  └─ page.hbs
+//!   │
+//!   ├─ styles/
+//!   │  ├─ global.scss
+//!   │  └─ scoped/
+//!   │     └─ stylish.scss
+//!   │
+//!   └─ public/
+//!      └─ favicon.ico
+//! ```
 
 #[macro_use]
 mod macros;
@@ -59,7 +137,24 @@ enum Page {
 ///
 /// Create a new app with `Unreact::new()`
 ///
-/// TODO Examples
+/// # Examples
+///
+/// ```
+/// use unreact::prelude::*;
+///
+/// const URL: &str = "https://example.com";
+///
+/// fn main() -> Result<(), Error> {
+///    let mut app = Unreact::new(Config::default(), false, URL)?;
+///    
+///    app
+///        .index("page", object! {})
+///        .route("hi", "hello", object! {
+///            world: "World!"
+///        });
+///
+///    app.run()
+/// }
 #[derive(Debug)]
 pub struct Unreact {
     config: Config,

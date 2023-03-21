@@ -1,0 +1,33 @@
+unreact-app/
+├─ Cargo.toml
+├─ src/
+│  └─ main.rs
+│
+├─ templates/
+│  └─ index.hbs
+│
+├─ styles/
+└─ public/
+
+unreact-app/
+  ├─ Cargo.toml
+  ├─ src/
+  │  └─ main.rs
+  │
+  ├─ templates/
+  │  ├─ boilerplate.hbs
+  │  ├─ hello.hbs
+  │  ├─ other/
+  │  │  ├─ another/
+  │  │  │  └─ something.hbs
+  │  │  └─ article.hbs
+  │  └─ page.hbs
+  │
+  ├─ styles/
+  │  ├─ global.scss
+  │  └─ scoped/
+  │     └─ stylish.scss
+  │
+  └─ public/
+     └─ favicon.ico
+     
