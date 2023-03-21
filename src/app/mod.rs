@@ -250,7 +250,7 @@ impl Unreact {
         let compile = || {
             try_unwrap!(
                 self.compile(),
-                else Err(err) => eprintln!("Failed to build in dev mode!\n{:?}", err),
+                else Err(err) => eprintln!("\nFailed to build in dev mode!\n{:?}", err),
             );
         };
 

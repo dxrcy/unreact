@@ -66,34 +66,40 @@ pub fn register_templates(registry: &mut Handlebars, templates: FileMap) -> Resu
     Ok(())
 }
 
+/// Inbuilt templates
+const INBUILT_TEMPLATES: &[(&str, &str)] = &[
+    // Local link
+    (
+        "LINK",
+        r#"<a href="{{>URL}}/{{to}}"> {{>@partial-block}} </a>"#,
+    ),
+    // Local css style tag
+    (
+        "CSS",
+        r#"<link rel="stylesheet" href="{{>URL}}/styles/{{name}}/style.css" />"#,
+    ),
+    // Local image icon
+    (
+        "ICON",
+        r#"<link rel="shortcut icon" href="{{>URL}}/public/{{name}}" />"#,
+    ),
+    // Boilerplate meta tags
+    (
+        "META",
+        r#"<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />"#,
+    ),
+];
+
 /// Register inbuilt Handlebars templates onto registry
 pub fn register_inbuilt_templates(registry: &mut Handlebars, url: &str) -> Result<(), Error> {
-    let inbuilt_templates: &[(&str, &str)] = &[
-        // Base url for site
-        ("URL", url),
-        // Local link
-        (
-            "LINK",
-            r#"<a href="{{>URL}}/{{to}}"> {{>@partial-block}} </a>"#,
-        ),
-        // Local css style tag
-        (
-            "CSS",
-            r#"<link rel="stylesheet" href="{{>URL}}/styles/{{name}}/style.css" />"#,
-        ),
-        // Local image icon
-        (
-            "ICON",
-            r#"<link rel="shortcut icon" href="{{>URL}}/public/{{name}}" />"#,
-        ),
-        // Boilerplate meta tags
-        (
-            "META",
-            r#"<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />"#,
-        ),
-    ];
+    // Url partial (not const)
+    try_unwrap!(
+        registry.register_partial("url", url),
+        else Err(err) => return fail!(RegisterInbuiltTemplate, "url".to_string(), Box::new(err)),
+    );
 
-    for (name, template) in inbuilt_templates {
+    // Rest of inbuilt partials (const)
+    for (name, template) in INBUILT_TEMPLATES {
         try_unwrap!(
             registry.register_partial(name, template),
             else Err(err) => return fail!(RegisterInbuiltTemplate, name.to_string(), Box::new(err)),
