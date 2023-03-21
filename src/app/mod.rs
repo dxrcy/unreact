@@ -1,3 +1,5 @@
+mod routes;
+
 use std::fs;
 
 use handlebars::Handlebars;

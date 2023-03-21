@@ -85,7 +85,6 @@ mod config;
 mod convert;
 mod error;
 mod files;
-mod routes;
 
 #[cfg(feature = "dev")]
 mod server;
