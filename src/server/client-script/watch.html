@@ -1,34 +1,36 @@
 <!-- *** This file is in DEVELOPMENT MODE! *** -->
 
 <script>
-    console.log("This document is in *development mode*\nDocument will reload automatically.");
-    
+    console.debug(
+        "[debug] This document is in *development mode*\nDocument will reload automatically.",
+    );
+
     /* Websocket stuff */
     let ws;
     connect();
 
     function connect() {
-        console.log("WS: Connecting...");
+        console.debug("[debug] WS: Connecting...");
         ws = new WebSocket("ws://localhost:3001");
 
         ws.onopen = event => {
-            console.log("WS: Server open");
+            console.debug("[debug] WS: Server open");
             cancel_reconnect();
         };
 
         ws.onclose = error => {
-            console.log("WS: Server closed");
+            console.debug("[debug] WS: Server closed");
             reconnect();
         };
 
         ws.onerror = error => {
-            console.error("WS: Failed to connect!");
+            console.error("[debug] WS: Failed to connect!");
             reconnect();
         };
 
         ws.onmessage = event => {
             if (event.data === "reload") {
-                console.log("Reloading page...");
+                console.debug("[debug] Reloading page...");
                 location.reload();
             }
         };
