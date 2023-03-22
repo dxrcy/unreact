@@ -4,8 +4,6 @@ use std::fs;
 
 use handlebars::Handlebars;
 
-#[cfg(feature = "dev")]
-use crate::server;
 use crate::{
     convert::{register_inbuilt_templates, register_templates, render_page, scss_to_css},
     files::{check_source_folders, clean_build_dir, read_folder_recurse},
@@ -167,7 +165,6 @@ impl Unreact {
             // Render page with data
             let content = render_page(
                 &mut registry,
-                name,
                 page,
                 self.globals.clone(),
                 self.is_dev,
@@ -241,6 +238,9 @@ impl Unreact {
     /// ```
     #[cfg(feature = "dev")]
     pub fn run(&self) -> Result<(), Error> {
+        use crate::server;
+        use stilo::{eprintln_styles, println_styles};
+
         // Just compile if not dev mode
         if !self.is_dev {
             return self.compile();
@@ -250,25 +250,41 @@ impl Unreact {
         let compile = || {
             try_unwrap!(
                 self.compile(),
-                else Err(err) => eprintln!("\nFailed to build in dev mode!\n{:?}", err),
+                // Error message
+                else Err(err) => eprintln_styles!(
+                    "───────────────────────────": Cyan;
+                    "\n";
+                    "Error compiling in dev mode": Red + bold;
+                    "\n";
+                    "{}": Yellow, err;
+                    "\n";
+                    "───────────────────────────": Cyan;
+                )
             );
         };
+
+        // Print message before compile
+        println_styles!(
+            "\nListening on http://localhost:{}": Green + bold,
+            server::SERVER_PORT
+        );
+        cfg_if!( if #[cfg(feature = "watch")] {
+            println_styles!("  Watching files for changes...": Cyan + italic);
+        });
+        println!();
 
         // Compile for first time
         compile();
 
         // If watch feature is enabled
         cfg_if!( if #[cfg(feature = "watch")] {
-            println!("Listening on http://localhost:{}\nWatching files for changes...", server::SERVER_PORT);
-
             // Open server in new thread
             std::thread::spawn(server::listen);
+
             // Watch files for changes
             server::watch(compile);
         } else {
             // Open server in current thread
-            println!("Listening on http://localhost:{}", server::SERVER_PORT);
-
             server::listen();
         });
 
@@ -283,7 +299,7 @@ fn get_url(url: &str, #[allow(unused_variables)] is_dev: bool) -> String {
     // If `watch` feature is used, and `is_dev`
     cfg_if!( if #[cfg(feature = "dev")] {
         if is_dev {
-            return format!("http://localhost:{}", server::SERVER_PORT);
+            return format!("http://localhost:{}", crate::server::SERVER_PORT);
         }
     });
 

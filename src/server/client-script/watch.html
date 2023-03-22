@@ -10,6 +10,10 @@
     connect();
 
     function connect() {
+        if (ws) {
+            ws.close();
+        }
+
         console.debug("[debug] WS: Connecting...");
         ws = new WebSocket("ws://localhost:3001");
 

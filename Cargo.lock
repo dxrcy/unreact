@@ -1303,6 +1303,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "stilo"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1da0ff3c8708532c7b1189ed9fd4078d10fb9f0009c60e34ae096346977c6334"
+
+[[package]]
 name = "strsim"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1545,6 +1551,7 @@ dependencies = [
  "notify-debouncer-mini",
  "serde_json",
  "simple-websockets",
+ "stilo",
  "thiserror",
  "tokio",
 ]

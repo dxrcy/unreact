@@ -8,7 +8,6 @@ use crate::{Error, FileMap, Object, Page, Value};
 /// Render a page, using either a Handlebars template or a raw string, and minify
 pub(crate) fn render_page(
     registry: &mut Handlebars,
-    name: &str,
     page: &Page,
     globals: Object,
     #[allow(unused_variables)] is_dev: bool,
@@ -25,7 +24,7 @@ pub(crate) fn render_page(
             // Render template
             try_unwrap!(
                 registry.render(template, &data),
-                else Err(err) => return fail!(RenderTemplate, name.to_string(), Box::new(err)),
+                else Err(err) => return fail!(RenderTemplate, template.to_string(), Box::new(err)),
             )
         }
     };
@@ -37,6 +36,8 @@ pub(crate) fn render_page(
             keep_comments: true,
             keep_html_and_head_opening_tags: true,
             keep_closing_tags: true,
+            minify_css: true,
+            minify_js: true,
             ..minify_html::Cfg::default()
         };
 

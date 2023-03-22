@@ -3,6 +3,7 @@ use unreact::prelude::*;
 fn main() -> Result<(), Error> {
     let config = Config {
         strict: true,
+        // dev_logs: true,
         ..Config::default()
     };
 

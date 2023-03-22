@@ -9,6 +9,7 @@ use std::{
 use chrono::Utc;
 use notify::{EventKind, RecursiveMode, Watcher};
 use simple_websockets::{Event, Message, Responder};
+use stilo::println_styles;
 
 /// Local port to host websocket hub (on localhost)
 pub const WS_PORT: u16 = 3001;
@@ -46,13 +47,13 @@ where
             match event {
                 // Client connected, add to list
                 Event::Connect(id, responder) => {
-                    // println!("Connect #{}", id);
+                    println_styles!("  Client #{} connected": + dim, id);
                     clients.insert(id, responder);
                 }
 
                 // Client disconnected, remove from list
                 Event::Disconnect(id) => {
-                    // println!("Disconnect #{}", id);
+                    println_styles!("  Client #{} disconnected": + dim, id);
                     clients.remove(&id);
                 }
 
