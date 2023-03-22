@@ -1,6 +1,6 @@
 [package]
 name = "unreact"
-version = "0.2.0-alpha7"
+version = "0.2.0-alpha8"
 edition = "2021"
 description = "A static site generation framework for Rust using Handlebars and Scss."
 license = "MIT"
@@ -46,7 +46,7 @@ chrono = { version = "0.4.24", optional = true }
 stilo = { version = "0.3.2", optional = true }
 
 [features]
-default = ["watch"]
+# default = ["watch"]
 dev = ["dep:http", "dep:hyper", "dep:tokio", "dep:stilo"]
 watch = [
     "dev",

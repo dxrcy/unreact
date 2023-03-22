@@ -210,6 +210,7 @@ impl Unreact {
     /// Add `features = "dev"` or `features = "watch"` to the `unreact` dependency in `Cargo.toml` to use the 'dev server'
     #[cfg(not(feature = "dev"))]
     pub fn run(&self) -> Result<(), Error> {
+        println!("DEV NOT ENABLED :(");
         self.compile()
     }
 
@@ -238,6 +239,8 @@ impl Unreact {
     /// ```
     #[cfg(feature = "dev")]
     pub fn run(&self) -> Result<(), Error> {
+        println!("DEV !!!");
+
         use crate::server;
         use stilo::{eprintln_styles, println_styles};
 
