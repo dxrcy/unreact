@@ -9,9 +9,12 @@
 ///
 /// ```
 /// # use unreact::object;
+/// let my_key = "Hello!";
 /// object! {
 ///     foo: 123,
 ///     bar: vec![4, 5, 6],
+///     // Use variable with same name as key
+///     my_key,
 ///     // Nested objects must also use `object!` macro
 ///     nested: object! {
 ///         key: "value"
@@ -25,6 +28,7 @@
 /// {
 ///     "foo": 123,
 ///     "bar": [4, 5, 6],
+///     "my_key": "Hello!",
 ///     "nested": {
 ///         "key": "value"
 ///     }
@@ -32,17 +36,33 @@
 /// ```
 #[macro_export]
 macro_rules! object {
+    // Empty object
     {} => { $crate::Object::new() };
 
+    // Object
     {
-        $( $key: ident : $value: expr ),* $(,)?
+        $( $key: ident $(: $value: expr)? ),* $(,)?
     } => {{
         let mut hm = $crate::Object::new();
         $(
-            hm.insert(stringify!($key).to_string(), $crate::Value::from($value));
+            object!(@entry hm, $key $(: $value)?);
         )*
         hm
     }};
+
+    // Key, no value
+    (@entry $hm: expr,
+        $key: ident
+    ) => {
+        $hm.insert(String::from(stringify!($key)), $crate::Value::from($key));
+    };
+
+    // Key and value
+    (@entry $hm: expr,
+        $key: ident : $value: expr
+    ) => {
+        $hm.insert(String::from(stringify!($key)), $crate::Value::from($value));
+    };
 }
 
 /// Try to unwrap a `Result`, returns value in `Ok` variant
@@ -100,14 +120,18 @@ mod tests {
 
     #[test]
     fn object_macro_works() {
+        let my_key = "hello!";
+
         let mut obj = Object::new();
         obj.insert("abc".to_string(), Value::from(123));
         obj.insert("array".to_string(), Value::from(vec![4, 5, 6]));
+        obj.insert("my_key".to_string(), Value::from(my_key));
 
         assert_eq!(
             object! {
                 abc: 123,
                 array: Value::from(vec![4, 5, 6]),
+                my_key,
             },
             obj
         );
