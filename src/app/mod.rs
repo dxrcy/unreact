@@ -155,13 +155,6 @@ impl Unreact {
 
         // Render page and write to files
         for (name, page) in &self.pages {
-            // Create folder for `index.html` file
-            let parent = format!("{}/{}", self.config.build, name);
-            try_unwrap!(
-                fs::create_dir_all(&parent),
-                else Err(err) => return io_fail!(CreateDir, parent, err),
-            );
-
             // Render page with data
             let content = render_page(
                 &mut registry,
@@ -170,6 +163,24 @@ impl Unreact {
                 self.is_dev,
                 self.config.minify,
             )?;
+
+            // Special case for 404 page
+            if name == "404" {
+                let path = format!("{}/404.html", self.config.build);
+                try_unwrap!(
+                    fs::write(&path, content),
+                    else Err(err) => return io_fail!(WriteFile, path, err),
+                );
+
+                continue;
+            }
+
+            // Create folder for `index.html` file
+            let parent = format!("{}/{}", self.config.build, name);
+            try_unwrap!(
+                fs::create_dir_all(&parent),
+                else Err(err) => return io_fail!(CreateDir, parent, err),
+            );
 
             // Write file
             let path = format!("{parent}/index.html");

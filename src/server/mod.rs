@@ -82,8 +82,8 @@ async fn server_router(req: Request<Body>) -> Result<Response<Body>, Infallible>
     // 404 page
     Ok(unwrap!(
         Response::builder().status(StatusCode::NOT_FOUND).body(
-            if let Some(file) = get_best_possible_file("404") {
-                // If custom 404 page is defined (requesting route `/404`)
+            if let Some(file) = get_best_possible_file("/404.html") {
+                // If custom 404 page is defined (requesting route `/404.html`)
                 file
             } else {
                 // Fallback 404 response
