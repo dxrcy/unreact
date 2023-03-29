@@ -23,6 +23,21 @@ Run with `--dev` or `-d` arguments, for `unreact::is_dev()` function to return `
 cargo run -- --dev
 ```
 
+## Hot-reloading in dev mode
+
+With the `"watch"` feature enabled, the dev server will watch for changes in asset folders (`templates`, `styles`, and `public`; Can be changed with config).
+The client will reload if a change was detected.
+
+> NOTE: This will NOT reload the client if Rust files (in `src`) were changed! (See below)
+
+## Watching router in dev mode
+
+This will watch file in `src`, and reload the program. The client should automatically try to reconnect.
+
+```
+cargo watch -x "run -- --dev" -w src
+```
+
 ## Ignoring `"dev"` Feature in Production
 
 Disable default features (`"dev"` and `"watch"`) for less to compile in production.

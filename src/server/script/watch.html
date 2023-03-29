@@ -8,46 +8,66 @@
     /* Websocket stuff */
     let ws;
     connect();
+    // Last time client was loaded, in seconds
+    let last_client_load = Date.now() / 1000;
 
+    // Try to connect to websockets
     function connect() {
+        // If websockets already is initialized, close
         if (ws) {
             ws.close();
         }
 
+        // Start websockets
         console.debug("[debug] WS: Connecting...");
         ws = new WebSocket("ws://localhost:3001");
 
+        // Open and close events
         ws.onopen = event => {
-            console.debug("[debug] WS: Server open");
+            console.debug("[debug] WS: Websocket open");
             cancel_reconnect();
         };
-
         ws.onclose = error => {
-            console.debug("[debug] WS: Server closed");
+            console.debug("[debug] WS: Websocket closed");
             reconnect();
         };
 
+        // Websocket error (Usually server currently reloading, or crashed)
         ws.onerror = error => {
             console.error("[debug] WS: Failed to connect!");
             reconnect();
         };
 
+        // Message received from server
         ws.onmessage = event => {
             if (event.data === "reload") {
-                console.debug("[debug] Reloading page...");
-                location.reload();
+                // Reload request
+                reload();
+            } else {
+                // Inform of last server start
+                let last_server_load = parseInt(event.data);
+                // If server is newer than the last client load, reload page
+                if (last_server_load > last_client_load) {
+                    reload();
+                }
             }
         };
     }
 
+    // Try to connect websockets at interval
     let reconnect_interval;
-
     function reconnect() {
         cancel_reconnect();
         reconnect_interval = setInterval(connect, 1000);
     }
-
+    // Stop trying to reconnect websockets
     function cancel_reconnect() {
         clearInterval(reconnect_interval);
+    }
+
+    // Reload page (due to server change)
+    function reload() {
+        console.log("[debug] Reloading page!");
+        location.reload();
     }
 </script>

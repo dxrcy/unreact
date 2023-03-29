@@ -21,7 +21,7 @@ pub const SERVER_PORT: u16 = 3000;
 
 /// Html file with javascript websockets to append to every file
 #[cfg(not(feature = "watch"))]
-pub const DEV_SCRIPT: &str = include_str!("script/dev.html");
+pub const DEV_SCRIPT: &str = include_str!("script/no-watch.html");
 /// Html file with javascript (no websockets) to append to every file
 #[cfg(feature = "watch")]
 pub const DEV_SCRIPT: &str = include_str!("script/watch.html");

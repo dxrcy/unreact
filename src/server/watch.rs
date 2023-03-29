@@ -36,6 +36,9 @@ where
     // List of connected clients, with ID and handler
     let clients = Arc::new(Mutex::new(HashMap::<u64, Responder>::new()));
 
+    // Last time the server was started
+    let last_server_start = Utc::now().timestamp();
+
     // Handle client events
     let clients_clone = clients.clone();
     thread::spawn(move || loop {
@@ -48,12 +51,16 @@ where
                 // Client connected, add to list
                 Event::Connect(id, responder) => {
                     println_styles!("  Client #{} connected": + dim, id);
+                    // Send message with last server start
+                    responder.send(Message::Text(last_server_start.to_string()));
+                    // Add client to list
                     clients.insert(id, responder);
                 }
 
                 // Client disconnected, remove from list
                 Event::Disconnect(id) => {
                     println_styles!("  Client #{} disconnected": + dim, id);
+                    // Remove client from list
                     clients.remove(&id);
                 }
 
@@ -78,7 +85,9 @@ where
         )
     }
 
+    // Last time the files were compiled
     let mut last_compile = Utc::now().timestamp();
+
     loop {
         // If file change event message is ok
         let Ok(Ok(event)) = rx.recv() else {
