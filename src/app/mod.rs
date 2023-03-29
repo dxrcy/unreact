@@ -5,7 +5,7 @@ use std::fs;
 use handlebars::Handlebars;
 
 use crate::{
-    convert::{register_inbuilt_templates, register_templates, render_page, scss_to_css},
+    convert::{register_partials, register_templates, render_page, scss_to_css},
     files::{check_source_folders, clean_build_dir, read_folder_recurse},
     Config, Error, Object, Pages, Unreact, DEV_BUILD_DIR,
 };
@@ -147,7 +147,7 @@ impl Unreact {
         }
 
         // Register inbuilt templates
-        register_inbuilt_templates(&mut registry, &self.url)?;
+        register_partials(&mut registry, &self.url)?;
 
         // Register custom templates
         let templates = read_folder_recurse(&self.config.templates)?;

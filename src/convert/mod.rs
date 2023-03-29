@@ -67,40 +67,28 @@ pub fn register_templates(registry: &mut Handlebars, templates: FileMap) -> Resu
     Ok(())
 }
 
-/// Inbuilt templates
-const INBUILT_TEMPLATES: &[(&str, &str)] = &[
+/// Inbuilt templates (partials)
+const PARTIALS: &[(&str, &str)] = &[
     // Local link
-    (
-        "LINK",
-        r#"<a href="{{>URL}}/{{to}}"> {{>@partial-block}} </a>"#,
-    ),
+    ("LINK", include_str!("partials/LINK.hbs")),
     // Local css style tag
-    (
-        "CSS",
-        r#"<link rel="stylesheet" href="{{>URL}}/styles/{{name}}/style.css" />"#,
-    ),
+    ("CSS", include_str!("partials/CSS.hbs")),
     // Local image icon
-    (
-        "ICON",
-        r#"<link rel="shortcut icon" href="{{>URL}}/public/{{name}}" />"#,
-    ),
+    ("ICON", include_str!("partials/ICON.hbs")),
     // Boilerplate meta tags
-    (
-        "META",
-        r#"<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />"#,
-    ),
+    ("META", include_str!("partials/META.hbs")),
 ];
 
-/// Register inbuilt Handlebars templates onto registry
-pub fn register_inbuilt_templates(registry: &mut Handlebars, url: &str) -> Result<(), Error> {
+/// Register inbuilt Handlebars templates (partials) onto registry
+pub fn register_partials(registry: &mut Handlebars, url: &str) -> Result<(), Error> {
     // Url partial (not const)
     try_unwrap!(
-        registry.register_partial("url", url),
-        else Err(err) => return fail!(RegisterInbuiltTemplate, "url".to_string(), Box::new(err)),
+        registry.register_partial("URL", url),
+        else Err(err) => return fail!(RegisterInbuiltTemplate, "URL".to_string(), Box::new(err)),
     );
 
     // Rest of inbuilt partials (const)
-    for (name, template) in INBUILT_TEMPLATES {
+    for (name, template) in PARTIALS {
         try_unwrap!(
             registry.register_partial(name, template),
             else Err(err) => return fail!(RegisterInbuiltTemplate, name.to_string(), Box::new(err)),
