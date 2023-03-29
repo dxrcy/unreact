@@ -65,18 +65,6 @@ impl Unreact {
             self
         }
 
-        /// Create a route, with raw page content instead of a template
-        ///
-        /// ## Parameters
-        ///
-        /// - `path`: The folder (relative to build directory) that file should be written in (`{build}/{path}/index.html`)
-        /// - `content`: The raw file contents to write to the file
-        <::>
-        pub fn route_raw(&mut self, path: &str, content: String) -> &mut Self {
-            self.pages.insert(path.to_string(), Page::Raw(content));
-            self
-        }
-
         /// Create a route without any data given to the template
         ///
         /// ## Parameters
@@ -86,6 +74,18 @@ impl Unreact {
         <::>
         pub fn route_bare(&mut self, path: &str, template: &str) -> &mut Self {
             self.route(path, template, object! {})
+        }
+
+        /// Create a route, with raw page content instead of a template
+        ///
+        /// ## Parameters
+        ///
+        /// - `path`: The folder (relative to build directory) that file should be written in (`{build}/{path}/index.html`)
+        /// - `content`: The raw file contents to write to the file
+        <::>
+        pub fn route_raw(&mut self, path: &str, content: impl Into<String>) -> &mut Self {
+            self.pages.insert(path.to_string(), Page::Raw(content.into()));
+            self
         }
 
         /// Create the index route
