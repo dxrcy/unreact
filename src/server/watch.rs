@@ -50,7 +50,7 @@ where
             match event {
                 // Client connected, add to list
                 Event::Connect(id, responder) => {
-                    println_styles!("  Client #{} connected": + dim, id);
+                    println_styles!("        Client #{} connected": + dim, id);
                     // Send message with last server start
                     responder.send(Message::Text(last_server_start.to_string()));
                     // Add client to list
@@ -59,7 +59,7 @@ where
 
                 // Client disconnected, remove from list
                 Event::Disconnect(id) => {
-                    println_styles!("  Client #{} disconnected": + dim, id);
+                    println_styles!("        Client #{} disconnected": + dim, id);
                     // Remove client from list
                     clients.remove(&id);
                 }

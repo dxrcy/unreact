@@ -267,14 +267,12 @@ impl Unreact {
         println_styles!(
             "\nUnreact": Blue + bold + italic;
             " dev server": Blue + bold;
-            "\nListening on http://localhost:{}": Green + bold,
-            server::SERVER_PORT;
-            "\n    Rust code will not update without restart": Yellow + italic;
+            "\nListening on http://localhost:{}": Green + bold, server::SERVER_PORT;
+            "\n    Rust code won't update without 'cargo run'": Yellow + italic;
         );
         cfg_if!( if #[cfg(feature = "watch")] {
-            println_styles!("    Watching files for changes...": Cyan + italic);
+            println_styles!("    Watching files for changes...": Cyan);
         });
-        println!();
 
         // Compile for first time
         compile();
@@ -283,7 +281,6 @@ impl Unreact {
         cfg_if!( if #[cfg(feature = "watch")] {
             // Open server in new thread
             std::thread::spawn(server::listen);
-
             // Watch files for changes
             server::watch(compile);
         } else {
