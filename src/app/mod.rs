@@ -265,11 +265,14 @@ impl Unreact {
 
         // Print message before compile
         println_styles!(
+            "\nUnreact": Blue + bold + italic;
+            " dev server": Blue + bold;
             "\nListening on http://localhost:{}": Green + bold,
-            server::SERVER_PORT
+            server::SERVER_PORT;
+            "\n    Rust code will not update without restart": Yellow + italic;
         );
         cfg_if!( if #[cfg(feature = "watch")] {
-            println_styles!("  Watching files for changes...": Cyan + italic);
+            println_styles!("    Watching files for changes...": Cyan + italic);
         });
         println!();
 

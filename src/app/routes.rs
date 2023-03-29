@@ -35,8 +35,9 @@ macro_rules! include_shared_docs {
             /// # Routing Methods
             ///
             /// - [`route`](struct.Unreact.html#method.route): Create a normal route
-            /// - [`route_raw`](struct.Unreact.html#method.route_raw): Create a route without a template
             /// - [`route_bare`](struct.Unreact.html#method.route_bare): Create a route without any data
+            /// - [`route_raw`](struct.Unreact.html#method.route_raw): Create a route without a template
+            /// - [`route_raw_html`](struct.Unreact.html#method.route_raw_html): Create a HTML page route without a template
             /// - [`index`](struct.Unreact.html#method.index): Create an index route (`/`)
             /// - [`not_found`](struct.Unreact.html#method.not_found): Create a 404 route (`/404`)
             $item
@@ -85,6 +86,20 @@ impl Unreact {
         <::>
         pub fn route_raw(&mut self, path: &str, content: impl Into<String>) -> &mut Self {
             self.pages.insert(path.to_string(), Page::Raw(content.into()));
+            self
+        }
+
+        /// Create a route, with raw page content instead of a template
+        ///
+        /// Adds HTML boilerplate around content (Unlike [`route_raw`](struct.Unreact.html#method.route_raw))
+        ///
+        /// ## Parameters
+        ///
+        /// - `path`: The folder (relative to build directory) that file should be written in (`{build}/{path}/index.html`)
+        /// - `content`: The raw file contents to write to the file
+        <::>
+        pub fn route_raw_html(&mut self, path: &str, content: impl Into<String>) -> &mut Self {
+            self.pages.insert(path.to_string(), Page::Raw(format!(include_str!("boilerplate.html"), content.into())));
             self
         }
 

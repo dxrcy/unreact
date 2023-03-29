@@ -21,10 +21,10 @@ pub const SERVER_PORT: u16 = 3000;
 
 /// Html file with javascript websockets to append to every file
 #[cfg(not(feature = "watch"))]
-pub const DEV_SCRIPT: &str = include_str!("client-script/dev.html");
+pub const DEV_SCRIPT: &str = include_str!("script/dev.html");
 /// Html file with javascript (no websockets) to append to every file
 #[cfg(feature = "watch")]
-pub const DEV_SCRIPT: &str = include_str!("client-script/watch.html");
+pub const DEV_SCRIPT: &str = include_str!("script/watch.html");
 
 /// Fallback page, including dev script
 const FALLBACK_404: &str = const_str::concat!(include_str!("404.html"), "\n\n", DEV_SCRIPT);
