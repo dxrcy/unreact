@@ -5,9 +5,17 @@
         "[debug] This document is in *development mode*\nDocument will reload automatically.",
     );
 
-    /* Websocket stuff */
+    /*** WEBSOCKET CODE BELOW ***/
+
+    // Time to wait before attempting to reconnect, in seconds
+    const RECONNECT_INTERVAL = 0.5;
+    // Maximum allowed attempts to reconnect, before cancelling
+    const MAX_RECONNECT_ATTEMPTS = 50;
+
+    // Websocket handler
     let ws;
     connect();
+
     // Last time client was loaded, in seconds
     let last_client_load = Date.now() / 1000;
 
@@ -25,17 +33,21 @@
         // Open and close events
         ws.onopen = event => {
             console.debug("[debug] WS: Websocket open");
+            // Stop trying to reconnect
             cancel_reconnect();
+            // Clear reconnect attempt counter
+            recent_reconnect_attempts = 0;
         };
         ws.onclose = error => {
             console.debug("[debug] WS: Websocket closed");
+            // Start trying to reconnect
             reconnect();
         };
 
         // Websocket error (Usually server currently reloading, or crashed)
         ws.onerror = error => {
             console.error("[debug] WS: Failed to connect!");
-            reconnect();
+            // Don't start trying to reconnect, this is handled by `ws.onclose`
         };
 
         // Message received from server
@@ -56,11 +68,27 @@
 
     // Try to connect websockets at interval
     let reconnect_interval;
+    let recent_reconnect_attempts = 0;
     function reconnect() {
         cancel_reconnect();
-        reconnect_interval = setInterval(connect, 1000);
+        reconnect_interval = setInterval(() => {
+            // Increase attempt counter
+            recent_reconnect_attempts += 1;
+            // Check max attempts
+            if (recent_reconnect_attempts > MAX_RECONNECT_ATTEMPTS) {
+                // Stop attempting to reconnect
+                console.warn(
+                    "[debug] Maximum websocket reconnect attempts met. This page will no longer reload automatically.",
+                );
+                cancel_reconnect();
+                return;
+            }
+
+            // Connect again
+            connect();
+        }, RECONNECT_INTERVAL * 1000);
     }
-    // Stop trying to reconnect websockets
+    // Stop trying to reconnect websockets, reset attempt counter
     function cancel_reconnect() {
         clearInterval(reconnect_interval);
     }
