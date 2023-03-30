@@ -6,6 +6,8 @@
 
 # Maybe
 
+-   Use script file (not inline) for dev script ?
+
 -   Use env var for server logging ? `UNREACT_LOGS`
 -   Use env var for ports ? `UNREACT_PORT` `UNREACT_PORT_WS`
 

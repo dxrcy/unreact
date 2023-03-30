@@ -114,6 +114,7 @@ where
         thread::sleep(Duration::from_millis(FILE_SAVE_WAIT));
 
         // Run callback router
+        println_styles!("        Recompiling": Cyan + bold + dim);
         router();
 
         // Loop clients
