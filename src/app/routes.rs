@@ -56,7 +56,7 @@ impl Unreact {
         /// - `data`: Data to pass into the template, as an `Object`
         <::>
         pub fn route(&mut self, path: &str, template: &str, data: Object) -> &mut Self {
-            self.pages.insert(
+            self.routes.insert(
                 path.to_string(),
                 Page::Template {
                     template: template.to_string(),
@@ -85,7 +85,7 @@ impl Unreact {
         /// - `content`: The raw file contents to write to the file
         <::>
         pub fn route_raw(&mut self, path: &str, content: impl Into<String>) -> &mut Self {
-            self.pages.insert(path.to_string(), Page::Raw(content.into()));
+            self.routes.insert(path.to_string(), Page::Raw(content.into()));
             self
         }
 
@@ -99,7 +99,7 @@ impl Unreact {
         /// - `content`: The raw file contents to write to the file
         <::>
         pub fn route_raw_html(&mut self, path: &str, content: impl Into<String>) -> &mut Self {
-            self.pages.insert(path.to_string(), Page::Raw(format!(include_str!("boilerplate.html"), content.into())));
+            self.routes.insert(path.to_string(), Page::Raw(format!(include_str!("boilerplate.html"), content.into())));
             self
         }
 

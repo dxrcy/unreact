@@ -7,7 +7,7 @@ use handlebars::Handlebars;
 use crate::{
     convert::{register_partials, register_templates, render_page, scss_to_css},
     files::{check_source_folders, clean_build_dir, read_folder_recurse},
-    Config, Error, Object, Pages, Unreact, DEV_BUILD_DIR,
+    Config, Error, Object, RouteMap, Unreact, DEV_BUILD_DIR,
 };
 
 impl Unreact {
@@ -84,7 +84,7 @@ impl Unreact {
 
         Ok(Self {
             config,
-            pages: Pages::new(),
+            routes: RouteMap::new(),
             globals: Object::new(),
             url: get_url(url, is_dev),
             is_dev,
@@ -147,6 +147,7 @@ impl Unreact {
         }
 
         // Register inbuilt templates
+        //TODO Check duplicates
         register_partials(&mut registry, &self.url)?;
 
         // Register custom templates
@@ -154,7 +155,7 @@ impl Unreact {
         register_templates(&mut registry, templates)?;
 
         // Render page and write to files
-        for (name, page) in &self.pages {
+        for (name, page) in &self.routes {
             // Render page with data
             let content = render_page(
                 &mut registry,
@@ -164,26 +165,22 @@ impl Unreact {
                 self.config.minify,
             )?;
 
-            // Special case for 404 page
-            if name == "404" {
-                let path = format!("{}/404.html", self.config.build);
+            // Get filepath
+            let path = if name == "404" {
+                // Special case for 404 route
+                format!("{}/404.html", self.config.build)
+            } else {
+                // Create folder for `index.html` file
+                let parent = format!("{}/{}", self.config.build, name);
                 try_unwrap!(
-                    fs::write(&path, content),
-                    else Err(err) => return io_fail!(WriteFile, path, err),
+                    fs::create_dir_all(&parent),
+                    else Err(err) => return io_fail!(CreateDir, parent, err),
                 );
-
-                continue;
-            }
-
-            // Create folder for `index.html` file
-            let parent = format!("{}/{}", self.config.build, name);
-            try_unwrap!(
-                fs::create_dir_all(&parent),
-                else Err(err) => return io_fail!(CreateDir, parent, err),
-            );
+                // Normal path
+                format!("{parent}/index.html")
+            };
 
             // Write file
-            let path = format!("{parent}/index.html");
             try_unwrap!(
                 fs::write(&path, content),
                 else Err(err) => return io_fail!(WriteFile, path, err),

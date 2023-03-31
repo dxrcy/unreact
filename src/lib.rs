@@ -112,7 +112,7 @@ use std::collections::HashMap;
 /// Map a filepath to file contents
 type FileMap = HashMap<String, String>;
 /// Map a path to a `Page` enum
-type Pages = HashMap<String, Page>;
+type RouteMap = HashMap<String, Page>;
 
 /// Build directory for *dev mode*
 ///
@@ -156,7 +156,7 @@ enum Page {
 #[derive(Debug)]
 pub struct Unreact {
     config: Config,
-    pages: Pages,
+    routes: RouteMap,
     globals: Object,
     url: String,
     is_dev: bool,
