@@ -1,5 +1,11 @@
 # TODO
 
+-   Check for existing files before overriding
+    -   styles
+    -   routes
+    -   templates
+        -   check with inbuilts as well
+
 ## What?
 
 -   Fix ordered list numbers ???
