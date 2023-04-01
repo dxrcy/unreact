@@ -1,9 +1,18 @@
 <!-- *** This file is in DEVELOPMENT MODE! *** -->
 
 <script>
-    console.debug(
-        "[debug] This document is in *development mode*\nDocument will reload automatically.",
+    debug(
+        "This document is in *development mode*\nDocument will reload automatically.",
     );
+
+    // Console log a message with a debug flag
+    function debug(message) {
+        console.debug(
+            "%cDEBUG",
+            "color: #8F4; background-color: #6826;",
+            message,
+        );
+    }
 
     /*** WEBSOCKET CODE BELOW ***/
 
@@ -27,19 +36,19 @@
         }
 
         // Start websockets
-        console.debug("[debug] WS: Connecting...");
+        debug("WS: Connecting...");
         ws = new WebSocket("ws://localhost:3001");
 
         // Open and close events
         ws.onopen = event => {
-            console.debug("[debug] WS: Websocket open");
+            debug("WS: Websocket open");
             // Stop trying to reconnect
             cancel_reconnect();
             // Clear reconnect attempt counter
             recent_reconnect_attempts = 0;
         };
         ws.onclose = error => {
-            console.debug("[debug] WS: Websocket closed");
+            debug("WS: Websocket closed");
             // Start trying to reconnect
             reconnect();
         };
@@ -95,7 +104,7 @@
 
     // Reload page (due to server change)
     function reload() {
-        console.log("[debug] Reloading page!");
+        debug("Reloading page!");
         location.reload();
     }
 </script>

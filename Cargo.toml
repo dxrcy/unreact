@@ -1,6 +1,6 @@
 [package]
 name = "unreact"
-version = "0.3.0-alpha.5"
+version = "0.3.0-alpha.6"
 edition = "2021"
 description = "A static site generation framework for Rust using Handlebars and Scss."
 license = "MIT"

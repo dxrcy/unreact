@@ -1,6 +1,18 @@
 <!-- *** This file is in DEVELOPMENT MODE! *** -->
 
 <script>
-    console.debug("[debug] This document is in *development mode*\nDocument will NOT automatically reload, as `watch` feature is not enabled.");
-    /* NO websocket stuff */
+    debug(
+        "This document is in *development mode*\nDocument will NOT automatically reload, as `watch` feature is not enabled.",
+    );
+
+    // Console log a message with a debug flag
+    function debug(message) {
+        console.debug(
+            "%cDEBUG",
+            "color: #8F4; background-color: #6826;",
+            message,
+        );
+    }
+
+    /* NO websocket code */
 </script>
