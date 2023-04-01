@@ -44,6 +44,10 @@ pub struct Config {
     ///
     /// Only affects `html` and `css` output files
     pub minify: bool,
+    //TODO
+    // pub dev_logs: bool,
+    // pub port_main:
+    // pub port_websocket:
 }
 
 impl Default for Config {
