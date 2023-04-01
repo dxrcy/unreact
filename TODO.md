@@ -6,6 +6,7 @@
 
 # Maybe
 
+-   Remove `app.route_bare` ?
 -   Use script file (not inline) for dev script ?
 
 -   Use env var for server logging ? `UNREACT_LOGS`
