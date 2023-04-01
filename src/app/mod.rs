@@ -17,7 +17,7 @@ impl Unreact {
     ///
     /// - `config`: Configuration for the app (See [`Config`])
     /// - `is_dev`: Whether the app should build in *dev mode* (See [`is_dev`](fn.is_dev.html))
-    /// - `url`: The url that should be given to rendered templates. Overridden in *dev mode*
+    /// - `url`: The url that should be given to rendered templates. Overridden in *dev mode*. Trailing forward-slash is added if not present
     ///
     /// # Examples
     ///
@@ -307,10 +307,10 @@ fn get_url(url: &str, #[allow(unused_variables)] is_dev: bool) -> String {
     // If `watch` feature is used, and `is_dev`
     cfg_if!( if #[cfg(feature = "dev")] {
         if is_dev {
-            return format!("http://localhost:{}", crate::server::SERVER_PORT);
+            return format!("http://localhost:{}/", crate::server::SERVER_PORT);
         }
     });
 
-    // Default
-    url.to_string()
+    // Default (add slash to end if not included)
+    url.to_string() + if url.ends_with('/') { "" } else { "/" }
 }
