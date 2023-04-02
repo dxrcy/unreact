@@ -3,16 +3,17 @@ pub use css::scss_to_css;
 
 use handlebars::Handlebars;
 
-use crate::{server::dev_script, Error, FileMap, Object, Page, Port, Value};
+use crate::{Error, FileMap, Object, Page, Port, Value};
 
 /// Render a page, using either a Handlebars template or a raw string, and minify
 pub(crate) fn render_page(
     registry: &mut Handlebars,
     page: &Page,
     globals: Object,
-    #[allow(unused_variables)] is_dev: bool,
-    port_ws: Port,
     minify: bool,
+    // Only for "dev" feature
+    #[allow(unused_variables)] is_dev: bool,
+    #[allow(unused_variables)] port_ws: Port,
 ) -> Result<String, Error> {
     let mut rendered = match page {
         Page::Raw(page) => page.to_string(),
@@ -50,7 +51,7 @@ pub(crate) fn render_page(
     #[cfg(feature = "dev")]
     if is_dev {
         rendered += "\n\n";
-        rendered += &dev_script(port_ws);
+        rendered += &crate::server::dev_script(port_ws);
     }
 
     Ok(rendered)

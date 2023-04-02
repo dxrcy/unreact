@@ -164,9 +164,9 @@ impl Unreact {
                 &mut registry,
                 page,
                 self.globals.clone(),
+                self.config.minify,
                 self.is_dev,
                 self.config.port_ws,
-                self.config.minify,
             )?;
 
             // Get filepath
@@ -316,7 +316,12 @@ impl Unreact {
 /// Get the url for the site
 ///
 /// Returns url given, unless `"dev"` feature is enabled and *dev mode* is active
-fn get_url(url: &str, #[allow(unused_variables)] is_dev: bool, port: Port) -> String {
+fn get_url(
+    url: &str,
+    // Only for "dev" feature
+    #[allow(unused_variables)] is_dev: bool,
+    #[allow(unused_variables)] port: Port,
+) -> String {
     // If `watch` feature is used, and `is_dev`
     #[cfg(feature = "dev")]
     {
