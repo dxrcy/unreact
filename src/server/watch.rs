@@ -16,7 +16,7 @@ use crate::Port;
 /// Folders in workspace directory to watch for changes
 const WATCHED_FOLDERS: &[&str] = &["templates", "styles", "public"];
 /// Minimum time to wait, in milliseconds, since the last event, for the websocket hub to send a reload request to the client
-const MIN_RECOMPILE_INTERVAL: u32 = 500;
+const MIN_RECOMPILE_INTERVAL: u32 = 800;
 /// Time to wait, in milliseconds, before reading a recently saved file
 const FILE_SAVE_WAIT: u64 = 300;
 
