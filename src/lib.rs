@@ -199,3 +199,53 @@ const DEFAULT_PORT_WS: Port = 3001;
 pub mod prelude {
     pub use crate::{is_dev, object, Config, Error, Unreact};
 }
+
+/// Get package name from `Cargo.toml` file in workspace
+/// 
+/// Returns `None` if any errors are found, or no package name is found
+fn get_package_name() -> Option<String> {
+    // Read Cargo.toml or return
+    let file = std::fs::read_to_string("./Cargo.toml").ok()?;
+
+    // Current category is 'package'
+    let mut is_package = false;
+    // Loop lines
+    for line in file.lines() {
+        let line = line.trim();
+
+        // Change category
+        if line.starts_with('[') && line.ends_with(']') {
+            is_package = line == "[package]";
+        }
+        // Continue if not package category
+        if !is_package {
+            continue;
+        }
+
+        // Check key is 'name'
+        let mut split = line.split('=');
+        if split.next().map(|x| x.trim()) != Some("name") {
+            continue;
+        }
+        let rest: Vec<_> = split.collect();
+
+        // Get rest of line
+        let name = rest.join("=");
+        let name = name.trim();
+
+        // Remove first and last characters, break if not quotes
+        let mut chars = name.chars();
+        if chars.next() != Some('"') {
+            break;
+        }
+        if chars.next_back() != Some('"') {
+            break;
+        }
+
+        // Return value
+        return Some(chars.as_str().to_string());
+    }
+
+    // No name found
+    None
+}

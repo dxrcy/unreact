@@ -251,7 +251,7 @@ impl Unreact {
     #[cfg(feature = "dev")]
     pub fn run(&self) -> Result<(), Error> {
         use crate::server;
-        use stilo::{eprintln_styles, println_styles};
+        use stilo::{eprintln_styles, print_styles, println_styles};
 
         // Just compile if not dev mode
         if !self.is_dev {
@@ -276,16 +276,38 @@ impl Unreact {
         };
 
         // Print message before compile
-        println_styles!(
+        print_styles!(
             "\nUnreact": Blue + bold + italic;
             " dev server": Blue + bold;
-            "\nListening on http://localhost:{}": Green + bold, self.config.port;
-            "\n    Rust code won't update without 'cargo run'": Yellow + italic;
+        );
+        if let Some(name) = crate::get_package_name() {
+            println_styles!(
+                " | ": Blue + dim;
+                "{}": Magenta, name;
+            );
+        } else {
+            println!();
+        }
+        println_styles!(
+            "Listening on ": Green + bold;
+            "http://localhost:{}": Green + bold + underline, self.config.port;
         );
         #[cfg(feature = "watch")]
         {
-            println_styles!("    Watching files for changes...": Cyan);
+            println_styles!(
+                "    Rust code won't update without 'cargo run'": Yellow;
+                "\n    Watching files for changes...": Cyan;
+            );
         }
+        #[cfg(not(feature = "watch"))]
+        {
+            println_styles!(
+                "    Note: ": Cyan + dim + bold;
+                "\"watch\"": Cyan + dim  + italic;
+                " feature not enabled": Cyan + dim;
+            );
+        }
+        println!();
 
         // Compile for first time
         compile();
