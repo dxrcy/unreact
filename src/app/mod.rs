@@ -307,7 +307,9 @@ impl Unreact {
                 " feature not enabled": Cyan + dim;
             );
         }
-        println!();
+        if !self.config.watch_logs {
+            println!();
+        }
 
         // Compile for first time
         compile();
