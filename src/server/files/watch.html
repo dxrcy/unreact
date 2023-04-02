@@ -37,7 +37,7 @@
 
         // Start websockets
         debug("WS: Connecting...");
-        ws = new WebSocket("ws://localhost:3001");
+        ws = new WebSocket("ws://localhost:{{PORT}}");
 
         // Open and close events
         ws.onopen = event => {

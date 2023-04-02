@@ -11,8 +11,7 @@ use notify::{EventKind, RecursiveMode, Watcher};
 use simple_websockets::{Event, Message, Responder};
 use stilo::println_styles;
 
-/// Local port to host websocket hub (on localhost)
-pub const WS_PORT: u16 = 3001;
+use crate::Port;
 
 /// Folders in workspace directory to watch for changes
 const WATCHED_FOLDERS: &[&str] = &["templates", "styles", "public"];
@@ -22,15 +21,15 @@ const MIN_RECOMPILE_INTERVAL: u32 = 0;
 const FILE_SAVE_WAIT: u64 = 300;
 
 /// Initialize websocket hub, with callback app router, and watch files for changes
-pub fn watch<F>(router: F)
+pub fn watch<F>(router: F, port: Port)
 where
     F: Fn(),
 {
     // Initialize websocket hub
     let event_hub = unwrap!(
-        simple_websockets::launch(WS_PORT),
+        simple_websockets::launch(port),
         err: "Failed to initialize websockets on port {} `{err:?}`",
-        WS_PORT
+        port
     );
 
     // List of connected clients, with ID and handler

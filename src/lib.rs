@@ -180,6 +180,13 @@ pub fn is_dev() -> bool {
     args.contains(&"--dev".to_string()) || args.contains(&"-d".to_string())
 }
 
+type Port = u16;
+
+/// Local port to host dev server (on localhost)
+const DEFAULT_PORT: Port = 3000;
+/// Local port to host websocket hub (on localhost)
+const DEFAULT_PORT_WS: Port = 3001;
+
 /// Prelude for `Unreact`
 ///
 /// ## Contains

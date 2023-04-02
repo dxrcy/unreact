@@ -1,10 +1,13 @@
 #[macro_use]
 mod unwrap;
+mod files;
 #[cfg(feature = "watch")]
 mod watch;
 
 #[cfg(feature = "watch")]
 pub use watch::watch;
+
+pub use files::{dev_script, fallback_404};
 
 use std::{convert::Infallible, fs, path::Path};
 
@@ -14,27 +17,14 @@ use hyper::{
     Body, Server,
 };
 
-use crate::DEV_BUILD_DIR;
-
-/// Local port to host dev server (on localhost)
-pub const SERVER_PORT: u16 = 3000;
-
-/// Html file with javascript websockets to append to every file
-#[cfg(not(feature = "watch"))]
-pub const DEV_SCRIPT: &str = include_str!("script/no-watch.html");
-/// Html file with javascript (no websockets) to append to every file
-#[cfg(feature = "watch")]
-pub const DEV_SCRIPT: &str = include_str!("script/watch.html");
-
-/// Fallback page, including dev script
-const FALLBACK_404: &str = const_str::concat!(include_str!("404.html"), "\n\n", DEV_SCRIPT);
+use crate::{Port, DEV_BUILD_DIR};
 
 /// Create server and listen on localhost port
 ///
 /// Similar to GitHub Pages router
 ///
 /// Reads file on every request: this should not be a problem for a dev server
-pub fn listen() {
+pub fn listen(port: Port, port_ws: Port) {
     // Create runtime
     let runtime = unwrap!(
         tokio::runtime::Builder::new_current_thread()
@@ -47,12 +37,15 @@ pub fn listen() {
     unwrap!(
         runtime.block_on(async {
             // Create service for router
+            let port_ws = port_ws.clone();
             let make_svc =
-                make_service_fn(|_| async { Ok::<_, Infallible>(service_fn(server_router)) });
+                make_service_fn(|_| async move {
+                    Ok::<_, Infallible>(service_fn(move |req| server_router(req, port_ws)))
+                });
 
             // Parse IP address
             let addr = unwrap!(
-                const_str::concat!("127.0.0.1:", SERVER_PORT).parse(),
+                format!("127.0.0.1:{}", port).parse(),
                 "Failed to parse constant IP address"
             );
 
@@ -70,7 +63,7 @@ pub fn listen() {
 ///
 /// If no possible file was found, use 404 route (same as <URL>/404 request).
 /// If no custom 404 page was found, use fallback 404 page
-async fn server_router(req: Request<Body>) -> Result<Response<Body>, Infallible> {
+async fn server_router(req: Request<Body>, port_ws: Port) -> Result<Response<Body>, Infallible> {
     // Check if is GET request
     if req.method() == Method::GET {
         // Return corresponding file as body if exists
@@ -87,7 +80,7 @@ async fn server_router(req: Request<Body>) -> Result<Response<Body>, Infallible>
                 file
             } else {
                 // Fallback 404 response
-                Body::from(FALLBACK_404)
+                Body::from(fallback_404(port_ws))
             },
         ),
         // Should not error

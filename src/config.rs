@@ -1,3 +1,5 @@
+use crate::Port;
+
 /// Configuration struct for `Unreact`
 ///
 /// Use `Config::default()` for default values
@@ -44,10 +46,17 @@ pub struct Config {
     ///
     /// Only affects `html` and `css` output files
     pub minify: bool,
+
+    /// Port for main *dev server* to be hosted on
+    ///
+    /// Only used with `"dev"` feature, but must be defined always
+    pub port: Port,
+    /// Port for websocket server to be hosted on
+    ///
+    /// Only used with `"watch"` feature, but must be defined always
+    pub port_ws: Port,
     //TODO
     // pub dev_logs: bool,
-    // pub port_main:
-    // pub port_ws:
 }
 
 impl Default for Config {
@@ -59,6 +68,8 @@ impl Default for Config {
             public: "public".to_string(),
             strict: false,
             minify: true,
+            port: crate::DEFAULT_PORT,
+            port_ws: crate::DEFAULT_PORT_WS,
         }
     }
 }

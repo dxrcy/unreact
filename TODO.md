@@ -1,9 +1,6 @@
 # TODO
 
--   these in config or env?:
-    -   `"watch"` feature: recompile and connection logging: `logs` or `UNREACT_LOGS`
-    -   `"dev"` feature: main port: `port` or `UNREACT_PORT`
-    -   `"watch"` feature: websocket port: `port_ws` or `UNREACT_PORT_WS`
+-   `"watch"` feature: recompile and connection logging: `logs`
 
 ## What?
 

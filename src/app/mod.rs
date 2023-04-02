@@ -7,7 +7,7 @@ use handlebars::Handlebars;
 use crate::{
     convert::{register_partials, register_templates, render_page, scss_to_css},
     files::{check_source_folders, clean_build_dir, read_folder_recurse},
-    Config, Error, Object, RouteMap, Unreact, DEV_BUILD_DIR,
+    Config, Error, Object, Port, RouteMap, Unreact, DEV_BUILD_DIR,
 };
 
 impl Unreact {
@@ -82,11 +82,14 @@ impl Unreact {
         // Check that source folders exist and can be accessed
         check_source_folders(&config)?;
 
+        // Override url if in dev mode
+        let url = get_url(url, is_dev, config.port);
+
         Ok(Self {
             config,
             routes: RouteMap::new(),
             globals: Object::new(),
-            url: get_url(url, is_dev),
+            url,
             is_dev,
         })
     }
@@ -162,6 +165,7 @@ impl Unreact {
                 page,
                 self.globals.clone(),
                 self.is_dev,
+                self.config.port_ws,
                 self.config.minify,
             )?;
 
@@ -275,7 +279,7 @@ impl Unreact {
         println_styles!(
             "\nUnreact": Blue + bold + italic;
             " dev server": Blue + bold;
-            "\nListening on http://localhost:{}": Green + bold, server::SERVER_PORT;
+            "\nListening on http://localhost:{}": Green + bold, self.config.port;
             "\n    Rust code won't update without 'cargo run'": Yellow + italic;
         );
         #[cfg(feature = "watch")]
@@ -286,19 +290,23 @@ impl Unreact {
         // Compile for first time
         compile();
 
-        // If watch feature is enabled
+        // For "watch" feature
         #[cfg(feature = "watch")]
         {
             // Open server in new thread
-            std::thread::spawn(server::listen);
+            let port = self.config.port.clone();
+            let port_ws = self.config.port_ws.clone();
+            std::thread::spawn(move || server::listen(port, port_ws));
+
             // Watch files for changes
-            server::watch(compile);
+            server::watch(compile, self.config.port_ws);
         }
-        // If watch feature not enabled
+
+        // For NOT "watch" feature
         #[cfg(not(feature = "watch"))]
         {
             // Open server in current thread
-            server::listen();
+            server::listen(self.config.port);
         }
 
         Ok(())
@@ -308,12 +316,12 @@ impl Unreact {
 /// Get the url for the site
 ///
 /// Returns url given, unless `"dev"` feature is enabled and *dev mode* is active
-fn get_url(url: &str, #[allow(unused_variables)] is_dev: bool) -> String {
+fn get_url(url: &str, #[allow(unused_variables)] is_dev: bool, port: Port) -> String {
     // If `watch` feature is used, and `is_dev`
     #[cfg(feature = "dev")]
     {
         if is_dev {
-            return format!("http://localhost:{}/", crate::server::SERVER_PORT);
+            return format!("http://localhost:{}/", port);
         }
     }
 
