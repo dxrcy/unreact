@@ -1,9 +1,14 @@
 [package]
 name = "unreact"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 description = "A static site generation framework for Rust using Handlebars and Scss."
 license = "MIT"
+documentation = "https://docs.rs/unreact/latest/unreact"
+repository = "https://github.com/darccyy/unreact"
+authors = ["darcy"]
+keywords = ["framework", "ssg", "static", "site", "web"]
+categories = ["web-programming", "template-engine"]
 exclude = [
     "build",
     ".devbuild",
@@ -13,12 +18,9 @@ exclude = [
     "target",
     "justfile",
     "examples",
+    ".github",
+    "TODO.md",
 ]
-documentation = "https://docs.rs/unreact/latest/unreact"
-repository = "https://github.com/darccyy/unreact"
-authors = ["darcy"]
-keywords = ["framework", "ssg", "static", "site", "web"]
-categories = ["web-programming", "template-engine"]
 
 [dependencies]
 const-str = "0.5.3"
