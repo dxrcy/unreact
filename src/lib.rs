@@ -89,9 +89,6 @@ mod files;
 #[cfg(feature = "dev")]
 mod server;
 
-#[macro_use]
-extern crate cfg_if;
-
 pub use serde_json::Value;
 
 pub use crate::{

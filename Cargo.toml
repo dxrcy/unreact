@@ -1,6 +1,6 @@
 [package]
 name = "unreact"
-version = "0.3.0-alpha.6"
+version = "0.3.0-alpha.7"
 edition = "2021"
 description = "A static site generation framework for Rust using Handlebars and Scss."
 license = "MIT"
@@ -28,7 +28,6 @@ handlebars = "4.3.6"
 serde_json = "1.0.94"
 css-minify = "0.3.1"
 minify-html = "0.10.8"
-cfg-if = "1.0.0"
 thiserror = "1.0.40"
 
 # for `watch` feature

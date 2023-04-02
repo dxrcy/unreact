@@ -278,23 +278,28 @@ impl Unreact {
             "\nListening on http://localhost:{}": Green + bold, server::SERVER_PORT;
             "\n    Rust code won't update without 'cargo run'": Yellow + italic;
         );
-        cfg_if!( if #[cfg(feature = "watch")] {
+        #[cfg(feature = "watch")]
+        {
             println_styles!("    Watching files for changes...": Cyan);
-        });
+        }
 
         // Compile for first time
         compile();
 
         // If watch feature is enabled
-        cfg_if!( if #[cfg(feature = "watch")] {
+        #[cfg(feature = "watch")]
+        {
             // Open server in new thread
             std::thread::spawn(server::listen);
             // Watch files for changes
             server::watch(compile);
-        } else {
+        }
+        // If watch feature not enabled
+        #[cfg(not(feature = "watch"))]
+        {
             // Open server in current thread
             server::listen();
-        });
+        }
 
         Ok(())
     }
@@ -305,11 +310,12 @@ impl Unreact {
 /// Returns url given, unless `"dev"` feature is enabled and *dev mode* is active
 fn get_url(url: &str, #[allow(unused_variables)] is_dev: bool) -> String {
     // If `watch` feature is used, and `is_dev`
-    cfg_if!( if #[cfg(feature = "dev")] {
+    #[cfg(feature = "dev")]
+    {
         if is_dev {
             return format!("http://localhost:{}/", crate::server::SERVER_PORT);
         }
-    });
+    }
 
     // Default (add slash to end if not included)
     url.to_string() + if url.ends_with('/') { "" } else { "/" }
