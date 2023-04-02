@@ -44,7 +44,7 @@ macro_rules! include_shared_docs {
     };
 }
 
-impl Unreact {
+impl<'a> Unreact<'a> {
     include_shared_docs!(
         /// Create a route
         ///

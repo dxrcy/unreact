@@ -4,6 +4,9 @@
 -   Client auto reconnect: try frequently, then after (10?) attempts, try less frequently
 -   Add tests for each feature (compile check only?)
 
+-   Add doc comments to (private) struct fields
+-   Add reference to handlebars docs in handlebars mentions in doc comments
+
 ## What?
 
 -   Fix ordered list numbers ???

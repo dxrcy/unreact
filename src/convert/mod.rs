@@ -2,7 +2,7 @@ mod css;
 
 pub use css::scss_to_css;
 
-use handlebars::{Context, Handlebars, Helper, HelperResult, Output, RenderContext};
+use handlebars::{Context, Handlebars, Helper, HelperResult, Output, RenderContext, JsonRender};
 
 use crate::{Error, FileMap, Object, Page, Port, Value};
 
@@ -58,7 +58,7 @@ pub(crate) fn render_page(
     Ok(rendered)
 }
 
-/// Register custom Handlebars templates onto registry
+/// Register custom `Handlebars` templates onto registry
 pub fn register_templates(registry: &mut Handlebars, templates: FileMap) -> Result<(), Error> {
     for (name, template) in templates {
         try_unwrap!(
@@ -68,24 +68,6 @@ pub fn register_templates(registry: &mut Handlebars, templates: FileMap) -> Resu
     }
 
     Ok(())
-}
-
-/// Registers given url as Handlebars helper
-pub fn register_url_helper(registry: &mut Handlebars, url: &str) {
-    // Create helper closure, with owned string moved
-    let url = url.to_string();
-    let closure = move |_: &Helper,
-                        _: &Handlebars,
-                        _: &Context,
-                        _: &mut RenderContext,
-                        out: &mut dyn Output|
-          -> HelperResult {
-        out.write(&url)?;
-        Ok(())
-    };
-
-    // Register helper
-    registry.register_helper("URL", Box::new(closure));
 }
 
 /// Inbuilt templates (partials)
@@ -100,7 +82,7 @@ const PARTIALS: &[(&str, &str)] = &[
     ("META", include_str!("partials/META.hbs")),
 ];
 
-/// Register const inbuilt Handlebars templates (partials) onto registry
+/// Register const inbuilt `Handlebars` templates (partials) onto registry
 pub fn register_partials(registry: &mut Handlebars) -> Result<(), Error> {
     for (name, template) in PARTIALS {
         try_unwrap!(
@@ -110,4 +92,37 @@ pub fn register_partials(registry: &mut Handlebars) -> Result<(), Error> {
     }
 
     Ok(())
+}
+
+/// Registers some as `Handlebars` helpers, including `url`
+pub fn register_helpers(registry: &mut Handlebars, url: &str) {
+    // Url helper, returns url given
+    let url = url.to_string();
+    let closure = move |_: &Helper,
+                        _: &Handlebars,
+                        _: &Context,
+                        _: &mut RenderContext,
+                        out: &mut dyn Output|
+          -> HelperResult {
+        out.write(&url)?;
+        Ok(())
+    };
+    registry.register_helper("URL", Box::new(closure));
+
+    // Concat helper, concatenates strings
+    let closure = |helper: &Helper,
+                   _: &Handlebars,
+                   _: &Context,
+                   _: &mut RenderContext,
+                   out: &mut dyn Output|
+     -> HelperResult {
+        let params = helper.params();
+
+        for param in params {
+            out.write(param.value().render().as_ref())?;
+        }
+
+        Ok(())
+    };
+    registry.register_helper("concat", Box::new(closure));
 }

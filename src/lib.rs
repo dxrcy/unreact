@@ -89,6 +89,7 @@ mod files;
 #[cfg(feature = "dev")]
 mod server;
 
+use handlebars::Handlebars;
 pub use serde_json::Value;
 
 pub use crate::{
@@ -151,12 +152,13 @@ enum Page {
 ///    app.run()
 /// }
 #[derive(Debug)]
-pub struct Unreact {
+pub struct Unreact<'a> {
     config: Config,
     routes: RouteMap,
     globals: Object,
     url: String,
     is_dev: bool,
+    registry: Handlebars<'a>,
 }
 
 /// Check if `--dev` or `-d` argument was passed on `cargo run`

@@ -5,14 +5,12 @@ use std::fs;
 use handlebars::Handlebars;
 
 use crate::{
-    convert::{
-        register_partials, register_templates, register_url_helper, render_page, scss_to_css,
-    },
+    convert::{register_helpers, register_partials, register_templates, render_page, scss_to_css},
     files::{check_source_folders, clean_build_dir, read_folder_recurse},
     Config, Error, Object, Port, RouteMap, Unreact, DEV_BUILD_DIR,
 };
 
-impl Unreact {
+impl<'a> Unreact<'a> {
     /// Create a new empty `Unreact` app
     ///
     /// ## Parameters
@@ -93,8 +91,13 @@ impl Unreact {
             globals: Object::new(),
             url,
             is_dev,
+            registry: Handlebars::new(),
         })
     }
+
+    // pub fn registry(&mut self) -> &mut Handlebars {
+    //     self.registry
+    // }
 
     /// Set global variables for templates
     ///
@@ -115,6 +118,11 @@ impl Unreact {
     pub fn globalize(&mut self, data: Object) -> &mut Self {
         self.globals = data;
         self
+    }
+
+    /// Get `Handlebars` registry as mutable reference
+    pub fn handlebars(&mut self) -> &mut Handlebars<'a> {
+        &mut self.registry
     }
 
     /// Compile app to build directory
@@ -144,7 +152,7 @@ impl Unreact {
         clean_build_dir(&self.config)?;
 
         // Create handlebars registry
-        let mut registry = Handlebars::new();
+        let mut registry = self.registry.clone();
 
         // Enable strict mode if active
         if self.config.strict {
@@ -153,8 +161,8 @@ impl Unreact {
 
         // Register inbuilt templates (partials)
         register_partials(&mut registry)?;
-        // Register url helper
-        register_url_helper(&mut registry, &self.url);
+        // Register inbuilt helpers
+        register_helpers(&mut registry, &self.url);
 
         // Register custom templates
         let templates = read_folder_recurse(&self.config.templates)?;
