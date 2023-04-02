@@ -13,15 +13,13 @@ use stilo::println_styles;
 
 use crate::Port;
 
-/// Folders in workspace directory to watch for changes
-const WATCHED_FOLDERS: &[&str] = &["templates", "styles", "public"];
 /// Minimum time to wait, in milliseconds, since the last event, for the websocket hub to send a reload request to the client
 const MIN_RECOMPILE_INTERVAL: u32 = 800;
 /// Time to wait, in milliseconds, before reading a recently saved file
 const FILE_SAVE_WAIT: u64 = 300;
 
 /// Initialize websocket hub, with callback app router, and watch files for changes
-pub fn watch<F>(router: F, port: Port, logs: bool)
+pub fn watch<F>(router: F, watched_folders: &[&str], port: Port, logs: bool)
 where
     F: Fn(),
 {
@@ -82,11 +80,10 @@ where
         unwrap!(notify::recommended_watcher(tx), err: "Could not create file watcher `{err:?}`");
 
     // Watch specific folders
-    for folder in WATCHED_FOLDERS {
+    for folder in watched_folders {
         unwrap!(
             watcher.watch(Path::new(folder), RecursiveMode::Recursive),
-            err: "Could not watch folder '{}' `{err:?}`",
-            folder
+            err: "Could not watch folder '{}' `{err:?}`", folder
         )
     }
 

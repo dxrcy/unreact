@@ -2,9 +2,14 @@
 ///
 /// For `server` module only!
 macro_rules! unwrap {
-    ( $result: expr, $($err: ident:)? $msg: literal $(, $( $arg: expr ),*)? ) => {
+    (
+        $result: expr,
+        $($err: ident : )? $msg: literal $(, $( $arg: expr ),*)?
+    ) => {
         $result.unwrap_or_else(|#[allow(unused_variables)] err|
-            panic!("[dev] Failed! {}", format!($msg, $( $( $arg, )*)? $( $err = err )?) )
+            panic!("[dev] Failed! {}",
+                format!($msg, $( $( $arg, )*)? $( $err = err )?),
+            )
         )
     };
 }

@@ -333,8 +333,20 @@ impl<'a> Unreact<'a> {
             let port_ws = self.config.port_ws;
             std::thread::spawn(move || server::listen(port, port_ws));
 
+            // Folders to watch
+            let watched_folders = &[
+                self.config.templates.as_str(),
+                self.config.styles.as_str(),
+                self.config.public.as_str(),
+            ];
+
             // Watch files for changes
-            server::watch(compile, self.config.port_ws, self.config.watch_logs);
+            server::watch(
+                compile,
+                watched_folders,
+                self.config.port_ws,
+                self.config.watch_logs,
+            );
         }
 
         // For NOT "watch" feature
