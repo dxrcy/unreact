@@ -201,7 +201,7 @@ pub mod prelude {
 }
 
 /// Get package name from `Cargo.toml` file in workspace
-/// 
+///
 /// Returns `None` if any errors are found, or no package name is found
 fn get_package_name() -> Option<String> {
     // Read Cargo.toml or return

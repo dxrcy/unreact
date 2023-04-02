@@ -1,7 +1,8 @@
 mod css;
+
 pub use css::scss_to_css;
 
-use handlebars::Handlebars;
+use handlebars::{Context, Handlebars, Helper, HelperResult, Output, RenderContext};
 
 use crate::{Error, FileMap, Object, Page, Port, Value};
 
@@ -69,6 +70,24 @@ pub fn register_templates(registry: &mut Handlebars, templates: FileMap) -> Resu
     Ok(())
 }
 
+/// Registers given url as Handlebars helper
+pub fn register_url_helper(registry: &mut Handlebars, url: &str) {
+    // Create helper closure, with owned string moved
+    let url = url.to_string();
+    let closure = move |_: &Helper,
+                        _: &Handlebars,
+                        _: &Context,
+                        _: &mut RenderContext,
+                        out: &mut dyn Output|
+          -> HelperResult {
+        out.write(&url)?;
+        Ok(())
+    };
+
+    // Register helper
+    registry.register_helper("URL", Box::new(closure));
+}
+
 /// Inbuilt templates (partials)
 const PARTIALS: &[(&str, &str)] = &[
     // Local link
@@ -81,15 +100,8 @@ const PARTIALS: &[(&str, &str)] = &[
     ("META", include_str!("partials/META.hbs")),
 ];
 
-/// Register inbuilt Handlebars templates (partials) onto registry
-pub fn register_partials(registry: &mut Handlebars, url: &str) -> Result<(), Error> {
-    // Url partial (not const)
-    try_unwrap!(
-        registry.register_partial("URL", url),
-        else Err(err) => return fail!(RegisterInbuiltTemplate, "URL".to_string(), Box::new(err)),
-    );
-
-    // Rest of inbuilt partials (const)
+/// Register const inbuilt Handlebars templates (partials) onto registry
+pub fn register_partials(registry: &mut Handlebars) -> Result<(), Error> {
     for (name, template) in PARTIALS {
         try_unwrap!(
             registry.register_partial(name, template),
