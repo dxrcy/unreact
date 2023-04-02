@@ -316,8 +316,8 @@ impl Unreact {
         #[cfg(feature = "watch")]
         {
             // Open server in new thread
-            let port = self.config.port.clone();
-            let port_ws = self.config.port_ws.clone();
+            let port = self.config.port;
+            let port_ws = self.config.port_ws;
             std::thread::spawn(move || server::listen(port, port_ws));
 
             // Watch files for changes

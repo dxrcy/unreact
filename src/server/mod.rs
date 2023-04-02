@@ -37,7 +37,6 @@ pub fn listen(port: Port, port_ws: Port) {
     unwrap!(
         runtime.block_on(async {
             // Create service for router
-            let port_ws = port_ws.clone();
             let make_svc =
                 make_service_fn(|_| async move {
                     Ok::<_, Infallible>(service_fn(move |req| server_router(req, port_ws)))
