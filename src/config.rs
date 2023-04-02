@@ -47,7 +47,7 @@ pub struct Config {
     //TODO
     // pub dev_logs: bool,
     // pub port_main:
-    // pub port_websocket:
+    // pub port_ws:
 }
 
 impl Default for Config {

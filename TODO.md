@@ -1,9 +1,9 @@
 # TODO
 
--   in config or env ?
-
-    -   server logging ? `UNREACT_LOGS`
-    -   ports ? `UNREACT_PORT` `UNREACT_PORT_WS`
+-   these in config or env?:
+    -   `"watch"` feature: recompile and connection logging: `logs` or `UNREACT_LOGS`
+    -   `"dev"` feature: main port: `port` or `UNREACT_PORT`
+    -   `"watch"` feature: websocket port: `port_ws` or `UNREACT_PORT_WS`
 
 ## What?
 
