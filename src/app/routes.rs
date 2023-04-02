@@ -87,7 +87,7 @@ impl Unreact {
         /// - `content`: The raw file contents to write to the file
         <::>
         pub fn route_raw_html(&mut self, path: &str, content: impl Into<String>) -> &mut Self {
-            self.routes.insert(path.to_string(), Page::Raw(format!(include_str!("boilerplate.html"), content.into())));
+            self.routes.insert(path.to_string(), Page::Raw(format!(include_str!("boilerplate.html"), CONTENT = content.into())));
             self
         }
 
