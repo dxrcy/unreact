@@ -11,7 +11,6 @@
 
 # Maybe
 
--   Remove `app.route_bare` ?
 -   Use script file (not inline) for dev script ?
 
 -   Use relative paths for template partials

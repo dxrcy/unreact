@@ -106,7 +106,7 @@ fn large_example() -> Result<(), Error> {
     app.index("page", object! {message: "World!"})
         .not_found("404", object! {})
         .route_raw("hello", "this is my hello page".to_string())
-        .route_bare("article", "other/article");
+        .route("article", "other/article", object! {});
 
     // Compiles normally, or opens a dev server and listens if in dev mode
     app.run()

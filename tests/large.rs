@@ -16,7 +16,7 @@ fn large_example() {
     app.index("page", object! {message: "World!"})
         .not_found("404", object! {})
         .route_raw("hello", "this is my hello page".to_string())
-        .route_bare("article", "other/article");
+        .route("article", "other/article", object! {});
 
     app.compile().expect("Could not compile");
 }
