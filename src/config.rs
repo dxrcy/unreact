@@ -1,4 +1,4 @@
-use crate::Port;
+use crate::{Port, DEFAULT_PORT, DEFAULT_PORT_WS};
 
 /// Configuration struct for `Unreact`
 ///
@@ -15,6 +15,8 @@ use crate::Port;
 /// - `templates`: Source folder for template files
 /// - `styles`: Source folder for style files
 /// - `public`: Source folder for static public files
+///
+/// TODO Add new fields to docs
 #[derive(Debug)]
 pub struct Config {
     /// Output folder for built files
@@ -55,8 +57,17 @@ pub struct Config {
     ///
     /// Only used with `"watch"` feature, but must be defined always
     pub port_ws: Port,
-    //TODO
-    // pub dev_logs: bool,
+
+    /// Whether logs should be sent to stdout for update events
+    ///
+    /// Only used with `"watch"` feature, but must be defined always
+    ///
+    /// Events that would be logged:
+    ///
+    /// - Recompile (reloads server)
+    /// - Client connect
+    /// - Client disconnect
+    pub watch_logs: bool,
 }
 
 impl Default for Config {
@@ -66,10 +77,14 @@ impl Default for Config {
             templates: "templates".to_string(),
             styles: "styles".to_string(),
             public: "public".to_string(),
+
             strict: false,
             minify: true,
-            port: crate::DEFAULT_PORT,
-            port_ws: crate::DEFAULT_PORT_WS,
+
+            port: DEFAULT_PORT,
+            port_ws: DEFAULT_PORT_WS,
+
+            watch_logs: false,
         }
     }
 }

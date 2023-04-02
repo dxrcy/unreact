@@ -21,7 +21,7 @@ const MIN_RECOMPILE_INTERVAL: u32 = 0;
 const FILE_SAVE_WAIT: u64 = 300;
 
 /// Initialize websocket hub, with callback app router, and watch files for changes
-pub fn watch<F>(router: F, port: Port)
+pub fn watch<F>(router: F, port: Port, logs: bool)
 where
     F: Fn(),
 {
@@ -49,7 +49,10 @@ where
             match event {
                 // Client connected, add to list
                 Event::Connect(id, responder) => {
-                    println_styles!("        Client #{} connected": + dim, id);
+                    if logs {
+                        println_styles!("        Client #{} connected": + dim, id);
+                    }
+
                     // Send message with last server start
                     responder.send(Message::Text(last_server_start.to_string()));
                     // Add client to list
@@ -58,7 +61,10 @@ where
 
                 // Client disconnected, remove from list
                 Event::Disconnect(id) => {
-                    println_styles!("        Client #{} disconnected": + dim, id);
+                    if logs {
+                        println_styles!("        Client #{} disconnected": + dim, id);
+                    }
+
                     // Remove client from list
                     clients.remove(&id);
                 }
@@ -113,7 +119,9 @@ where
         thread::sleep(Duration::from_millis(FILE_SAVE_WAIT));
 
         // Run callback router
-        println_styles!("        Recompiling": Cyan + bold + dim);
+        if logs {
+            println_styles!("        Recompiling": Cyan + bold + dim);
+        }
         router();
 
         // Loop clients

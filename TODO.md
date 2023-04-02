@@ -1,7 +1,5 @@
 # TODO
 
--   `"watch"` feature: recompile and connection logging: `logs`
-
 ## What?
 
 -   Fix ordered list numbers ???

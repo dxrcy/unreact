@@ -299,14 +299,14 @@ impl Unreact {
             std::thread::spawn(move || server::listen(port, port_ws));
 
             // Watch files for changes
-            server::watch(compile, self.config.port_ws);
+            server::watch(compile, self.config.port_ws, self.config.watch_logs);
         }
 
         // For NOT "watch" feature
         #[cfg(not(feature = "watch"))]
         {
             // Open server in current thread
-            server::listen(self.config.port);
+            server::listen(self.config.port, self.config.port_ws);
         }
 
         Ok(())
