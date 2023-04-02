@@ -1,5 +1,7 @@
 # TODO
 
+-   Client auto reconnect: try frequently, then after (10?) attempts, try less frequently
+
 ## What?
 
 -   Fix ordered list numbers ???
