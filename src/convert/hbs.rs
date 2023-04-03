@@ -2,14 +2,14 @@ use handlebars::{Context, Handlebars, Helper, HelperResult, JsonRender, Output, 
 
 use crate::{Error, FileMap, Object, Page, Port, Value};
 
-/// Registry all [`Handlebars`](handlebars) templates, partials, and helpers
-pub fn register_all(registry: &mut Handlebars, templates: FileMap, url: &str) -> Result<(), Error> {
+/// Registry all [`Handlebars`](handlebars) partials, and helpers
+///
+/// NOT Templates
+pub fn register_inbuilt(registry: &mut Handlebars, url: &str) -> Result<(), Error> {
     // Register inbuilt templates (partials)
     register_partials(registry)?;
     // Register inbuilt helpers
     register_helpers(registry, url);
-    // Register custom templates
-    register_templates(registry, templates)?;
     Ok(())
 }
 
@@ -66,7 +66,10 @@ pub(crate) fn render_page(
 }
 
 /// Register custom [`Handlebars`](handlebars) templates onto registry
-fn register_templates(registry: &mut Handlebars, templates: FileMap) -> Result<(), Error> {
+pub(crate) fn register_templates(
+    registry: &mut Handlebars,
+    templates: FileMap,
+) -> Result<(), Error> {
     for (name, template) in templates {
         try_unwrap!(
             registry.register_partial(&name, template),

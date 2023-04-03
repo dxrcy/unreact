@@ -167,8 +167,6 @@ pub struct Unreact<'a> {
     routes: RouteMap,
     /// Global variables for templates
     globals: Object,
-    /// Url of app website
-    url: String,
     /// Whether *dev mode* is active
     is_dev: bool,
     /// [`Handlebars`](handlebars) registry

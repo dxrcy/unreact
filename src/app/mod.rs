@@ -6,7 +6,7 @@ use std::fs;
 use handlebars::Handlebars;
 
 use crate::{
-    convert::{register_all, render_page, scss_to_css},
+    convert::{register_inbuilt, register_templates, render_page, scss_to_css},
     files::{check_source_folders, clean_build_dir, read_folder_recurse},
     Config, Error, Object, Port, RouteMap, Unreact, DEV_BUILD_DIR,
 };
@@ -86,13 +86,16 @@ impl<'a> Unreact<'a> {
         // Override url if in dev mode
         let url = get_url(url, is_dev, config.port);
 
+        // Create handlebars registry, and register inbuilt partials and helpers
+        let mut registry = Handlebars::new();
+        register_inbuilt(&mut registry, &url)?;
+
         Ok(Self {
             config,
             routes: RouteMap::new(),
             globals: Object::new(),
-            url,
             is_dev,
-            registry: Handlebars::new(),
+            registry,
         })
     }
 
@@ -160,9 +163,9 @@ impl<'a> Unreact<'a> {
             registry.set_strict_mode(true);
         }
 
-        // Register handlebars templates, partials, and helpers
+        // Register custom templates
         let templates = read_folder_recurse(&self.config.templates)?;
-        register_all(&mut registry, templates, &self.url)?;
+        register_templates(&mut registry, templates)?;
 
         // Render page and write to files
         for (name, page) in &self.routes {
