@@ -6,7 +6,7 @@ use crate::{Port, DEFAULT_PORT, DEFAULT_PORT_WS};
 ///
 /// ## Summary
 ///
-/// - `strict`: Whether `Handlebars` uses 'strict mode'
+/// - `strict`: Whether [`Handlebars`](handlebars) uses 'strict mode'
 /// - `minify`: Whether output files should be minified
 ///
 /// Folders:
@@ -16,7 +16,11 @@ use crate::{Port, DEFAULT_PORT, DEFAULT_PORT_WS};
 /// - `styles`: Source folder for style files
 /// - `public`: Source folder for static public files
 ///
-/// TODO Add new fields to docs
+/// Development Options:
+///
+/// - `port`: Port to serve *dev server* on - Only used with `"dev"` feature
+/// - `port_ws`: Port to serve *dev server* **websockets** on - Only used with `"watch"` feature
+/// - `watch_logs`: Whether to log update information - Only used with `"watch"` feature
 #[derive(Debug)]
 pub struct Config {
     /// Output folder for built files
@@ -40,7 +44,7 @@ pub struct Config {
     /// Default: `public`
     pub public: String,
 
-    /// Whether `Handlebars` uses 'strict mode'
+    /// Whether [`Handlebars`](handlebars) uses 'strict mode'
     ///
     /// If `true`, undefined variables and partials throw an error
     pub strict: bool,

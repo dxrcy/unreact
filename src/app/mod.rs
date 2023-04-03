@@ -1,3 +1,4 @@
+/// All route creation implementations for `Unreact` struct
 mod routes;
 
 use std::fs;
@@ -5,7 +6,7 @@ use std::fs;
 use handlebars::Handlebars;
 
 use crate::{
-    convert::{register_helpers, register_partials, register_templates, render_page, scss_to_css},
+    convert::{register_all, render_page, scss_to_css},
     files::{check_source_folders, clean_build_dir, read_folder_recurse},
     Config, Error, Object, Port, RouteMap, Unreact, DEV_BUILD_DIR,
 };
@@ -120,7 +121,7 @@ impl<'a> Unreact<'a> {
         self
     }
 
-    /// Get `Handlebars` registry as mutable reference
+    /// Get [`Handlebars`](handlebars) registry as mutable reference
     pub fn handlebars(&mut self) -> &mut Handlebars<'a> {
         &mut self.registry
     }
@@ -159,14 +160,9 @@ impl<'a> Unreact<'a> {
             registry.set_strict_mode(true);
         }
 
-        // Register inbuilt templates (partials)
-        register_partials(&mut registry)?;
-        // Register inbuilt helpers
-        register_helpers(&mut registry, &self.url);
-
-        // Register custom templates
+        // Register handlebars templates, partials, and helpers
         let templates = read_folder_recurse(&self.config.templates)?;
-        register_templates(&mut registry, templates)?;
+        register_all(&mut registry, templates, &self.url)?;
 
         // Render page and write to files
         for (name, page) in &self.routes {

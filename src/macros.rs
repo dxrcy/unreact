@@ -65,6 +65,8 @@ macro_rules! object {
     };
 }
 
+/// Private macro
+/// 
 /// Try to unwrap a `Result`, returns value in `Ok` variant
 ///
 /// If result is `Err`, then run code block
@@ -94,6 +96,8 @@ macro_rules! try_unwrap {
     };
 }
 
+/// Private macro
+/// 
 /// Shorthand for `Err(crate::Error...)`
 macro_rules! fail {
     ( $kind: ident ) => {
@@ -104,6 +108,8 @@ macro_rules! fail {
     };
 }
 
+/// Private macro
+/// 
 /// Shorthand for `Err(crate::Error::IoFail(crate::IoError...))`
 macro_rules! io_fail {
     ( $kind: ident ) => {

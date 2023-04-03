@@ -17,13 +17,13 @@ pub enum Error {
     #[error("Failed to minify CSS file '{0}': {1}")]
     CssMinify(String, String),
 
-    #[error("Failed to render handlebars template '{0}': {1}")]
+    #[error("Failed to render Handlebars template '{0}': {1}")]
     RenderTemplate(String, Box<handlebars::RenderError>),
 
-    #[error("Failed to register handlebars template '{0}': {1}")]
+    #[error("Failed to register Handlebars template '{0}': {1}")]
     RegisterTemplate(String, Box<handlebars::TemplateError>),
 
-    #[error("Failed to register *inbuilt* handlebars template '{0}': {1}")]
+    #[error("Failed to register *inbuilt* Handlebars template '{0}': {1}")]
     RegisterInbuiltTemplate(String, Box<handlebars::TemplateError>),
 }
 

@@ -1,13 +1,11 @@
+/// Private unwrap macro for unrecoverable error handling
 #[macro_use]
 mod unwrap;
+/// Use static files
 mod files;
+/// Watch folders and send websocket updates
 #[cfg(feature = "watch")]
 mod watch;
-
-#[cfg(feature = "watch")]
-pub use watch::watch;
-
-pub use files::{dev_script, fallback_404};
 
 use std::{convert::Infallible, fs, path::Path};
 
@@ -18,6 +16,10 @@ use hyper::{
 };
 
 use crate::{Port, DEV_BUILD_DIR};
+
+pub use files::{dev_script, fallback_404};
+#[cfg(feature = "watch")]
+pub use watch::watch;
 
 /// Create server and listen on localhost port
 ///

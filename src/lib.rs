@@ -78,24 +78,32 @@
 //!      └─ favicon.ico
 //! ```
 
+/// Private macros module
 #[macro_use]
 mod macros;
+/// `Unreact` struct implementations
 mod app;
+/// `Config` struct
 mod config;
+/// Convert and render filetypes, .hbs and .scss
 mod convert;
+/// Unreact `Error` type
 mod error;
+/// Handle file system logic
 mod files;
 
+/// Dev server and websockets
 #[cfg(feature = "dev")]
 mod server;
 
 use handlebars::Handlebars;
-pub use serde_json::Value;
+use std::collections::HashMap;
 
 pub use crate::{
     config::Config,
     error::{Error, IoError},
 };
+pub use serde_json::Value;
 
 /// Represents json-like object
 /// A map of string keys to json values
@@ -104,8 +112,6 @@ pub use crate::{
 ///
 /// See also: [`object`]
 pub type Object = serde_json::Map<String, Value>;
-
-use std::collections::HashMap;
 
 /// Map a filepath to file contents
 type FileMap = HashMap<String, String>;
@@ -125,7 +131,9 @@ const DEV_BUILD_DIR: &str = ".devbuild";
 /// - `Template`: Render a template, with data
 #[derive(Debug)]
 enum Page {
+    /// Raw string
     Raw(String),
+    /// Render a template, with data
     Template { template: String, data: Object },
 }
 
@@ -153,11 +161,17 @@ enum Page {
 /// }
 #[derive(Debug)]
 pub struct Unreact<'a> {
+    /// Configuration for app
     config: Config,
+    /// Map paths to pages
     routes: RouteMap,
+    /// Global variables for templates
     globals: Object,
+    /// Url of app website
     url: String,
+    /// Whether *dev mode* is active
     is_dev: bool,
+    /// [`Handlebars`](handlebars) registry
     registry: Handlebars<'a>,
 }
 
@@ -182,6 +196,7 @@ pub fn is_dev() -> bool {
     args.contains(&"--dev".to_string()) || args.contains(&"-d".to_string())
 }
 
+/// Alias for u16
 type Port = u16;
 
 /// Local port to host dev server (on localhost)
