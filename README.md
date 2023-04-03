@@ -115,7 +115,7 @@ fn large_example() -> Result<(), Error> {
 
 ## Automatic Compilation with Github Pages
 
-In `.github/workflows/build.yml`:
+In `.github/workflows/build.yaml`:
 
 ```yaml
 name: Build
