@@ -62,10 +62,10 @@ impl<'a> Unreact<'a> {
     ///     });
     ///
     ///     // Some routes
-    ///     app.index("page", object! {message: "World"})
-    ///         .not_found("404", object! {})
+    ///     app.index("page", object! {message: "World"})?
+    ///         .not_found("404", object! {})?
     ///         .route_raw("hello", "this is my hello page".to_string())
-    ///         .route("article", "other/article", object! {});
+    ///         .route("article", "other/article", object! {})?;
     ///     
     ///     // Run app
     ///     app.run().expect("Could not compile app");
@@ -112,7 +112,7 @@ impl<'a> Unreact<'a> {
     /// # fn main() -> Result<(), Error> {
     /// Unreact::new(Config::default(), false, "https://example.com")?
     ///     // Index page
-    ///     .index("page", object! {})
+    ///     .index("page", object! {})?
     ///     // Globalize does not need to be ran before routes
     ///     .globalize(object! {smiley: "(^_^)"})
     ///     // Compiles with a smiley face replacing `{{GLOBAL.smiley}}`

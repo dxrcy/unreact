@@ -152,10 +152,10 @@ enum Page {
 ///    let mut app = Unreact::new(Config::default(), false, URL)?;
 ///    
 ///    app
-///        .index("page", object! {})
+///        .index("page", object! {})?
 ///        .route("hi", "hello", object! {
 ///            world: "World!"
-///        });
+///        })?;
 ///
 ///    app.run()
 /// }

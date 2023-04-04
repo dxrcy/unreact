@@ -1,4 +1,6 @@
-use crate::{Object, Page, Unreact};
+use std::path::Path;
+
+use crate::{Error, Object, Page, Unreact};
 
 /// Append shared documentation attributes to each function
 macro_rules! include_shared_docs {
@@ -19,15 +21,15 @@ macro_rules! include_shared_docs {
             ///     # let mut app = Unreact::new(Config::default(), false, "https://example.com")?;
             /// app
             ///     // Create a route to '/some_path' with the template 'page.hbs' and a message
-            ///     .route("some_path", "page", object! {message: "this is at '/some_path'"})
+            ///     .route("some_path", "page", object! {message: "this is at '/some_path'"})?
             ///     // Create a route without a template (raw string)
             ///     .route_raw("hello", "this is my hello page".to_string())
             ///     // Create a route without data
-            ///     .route("article", "other/article", object! {})
+            ///     .route("article", "other/article", object! {})?
             ///     // Index page with a message
-            ///     .index("page", object! {message: "World"})
+            ///     .index("page", object! {message: "World"})?
             ///     // 404 page with no data
-            ///     .not_found("404", object! {});
+            ///     .not_found("404", object! {})?;
             /// # app.compile()
             /// # }
             /// ```
@@ -54,7 +56,14 @@ impl<'a> Unreact<'a> {
         /// - `template`: The name of the template to use
         /// - `data`: Data to pass into the template, as an `Object`
         <::>
-        pub fn route(&mut self, path: &str, template: &str, data: Object) -> &mut Self {
+        pub fn route(&mut self, path: &str, template: &str, data: Object) -> Result<&mut Self, Error> {
+            // Check file exists
+            let file_path = format!("{}/{}.hbs", self.config.templates, template);
+            if !Path::new(&file_path).exists() {
+                return fail!(TemplateNotExist, template.to_string());
+            }
+
+            // Create route
             self.routes.insert(
                 path.to_string(),
                 Page::Template {
@@ -62,7 +71,8 @@ impl<'a> Unreact<'a> {
                     data,
                 },
             );
-            self
+
+            Ok(self)
         }
 
         /// Create a route, with raw page content instead of a template
@@ -102,7 +112,7 @@ impl<'a> Unreact<'a> {
         /// - `template`: The name of the template to use
         /// - `data`: Data to pass into the template, as an `Object`
         <::>
-        pub fn index(&mut self, template: &str, data: Object) -> &mut Self {
+        pub fn index(&mut self, template: &str, data: Object) -> Result<&mut Self, Error> {
             self.route("", template, data)
         }
 
@@ -118,7 +128,7 @@ impl<'a> Unreact<'a> {
         /// - `template`: The name of the template to use
         /// - `data`: Data to pass into the template, as an `Object`
         <::>
-        pub fn not_found(&mut self, template: &str, data: Object) -> &mut Self {
+        pub fn not_found(&mut self, template: &str, data: Object) -> Result<&mut Self, Error> {
             self.route("404", template, data)
         }
     );

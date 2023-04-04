@@ -25,6 +25,9 @@ pub enum Error {
 
     #[error("Failed to register *inbuilt* Handlebars template '{0}': {1}")]
     RegisterInbuiltTemplate(String, Box<handlebars::TemplateError>),
+
+    #[error("Template does not exist with name '{0}' in templates directory")]
+    TemplateNotExist(String),
 }
 
 /// Error type for `Unreact`, relating to IO fails

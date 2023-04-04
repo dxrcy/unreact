@@ -14,9 +14,12 @@ fn large_example() {
     });
 
     app.index("page", object! {message: "World!"})
+        .expect("Could not create index route")
         .not_found("404", object! {})
+        .expect("Could not create 404 route")
         .route_raw("hello", "this is my hello page".to_string())
-        .route("article", "other/article", object! {});
+        .route("article", "other/article", object! {})
+        .expect("Could not create custom route");
 
     app.compile().expect("Could not compile");
 }

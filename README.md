@@ -75,7 +75,7 @@ fn main() -> Result<(), Error> {
    // Create an index route
    // This uses the template 'page.hbs' in 'templates/'
    // A json object with a value for 'foo' is passed into the template
-   app.index("page", object! { foo: "World!" });
+   app.index("page", object! { foo: "World!" })?;
    // Compile it!
    app.compile()
 }
@@ -103,10 +103,10 @@ fn large_example() -> Result<(), Error> {
     });
 
     // Create some routes
-    app.index("page", object! {message: "World!"})
-        .not_found("404", object! {})
+    app.index("page", object! {message: "World!"})?
+        .not_found("404", object! {})?
         .route_raw("hello", "this is my hello page".to_string())
-        .route("article", "other/article", object! {});
+        .route("article", "other/article", object! {})?;
 
     // Compiles normally, or opens a dev server and listens if in dev mode
     app.run()
