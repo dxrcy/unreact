@@ -89,6 +89,7 @@ impl<'a> Unreact<'a> {
         // Create handlebars registry, and register inbuilt partials and helpers
         let mut registry = Handlebars::new();
         register_inbuilt(&mut registry, &url)?;
+        registry.set_dev_mode(is_dev);
 
         Ok(Self {
             config,

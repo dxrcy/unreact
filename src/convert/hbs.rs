@@ -90,6 +90,8 @@ const PARTIALS: &[(&str, &str)] = &[
     ("ICON", include_str!("partials/ICON.hbs")),
     // Boilerplate meta tags
     ("META", include_str!("partials/META.hbs")),
+    // More meta tags!
+    ("META_EXTRA", include_str!("partials/META_EXTRA.hbs")),
 ];
 
 /// Register const inbuilt [`Handlebars`](handlebars) templates (partials) onto registry
