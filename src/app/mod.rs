@@ -270,60 +270,53 @@ impl<'a> Unreact<'a> {
         }
 
         // Create callback with non-breaking error message
-        let compile = || {
-            try_unwrap!(
-                self.compile(),
-                // Error message
-                else Err(err) => eprintln_styles!(
-                    "───────────────────────────": Cyan;
-                    "\n";
-                    "Error compiling in dev mode": Red + bold;
-                    "\n";
-                    "{}": Yellow, err;
-                    "\n";
-                    "───────────────────────────": Cyan;
-                )
+        let run_compile = || {
+            // Clear terminal
+            print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+
+            // Print message before compile
+            print_styles!(
+                "Unreact": Blue + bold + italic;
+                " dev server": Blue + bold;
             );
+            if let Some(name) = crate::get_package_name() {
+                print_styles!(
+                    " | ": Blue + dim;
+                    "{}": Magenta, name;
+                );
+            }
+            println_styles!(
+                "\n    Listening on ": Green + bold;
+                "http://localhost:{}": Green + bold + underline, self.config.port;
+            );
+            #[cfg(feature = "watch")]
+            {
+                println_styles!("    Watching files for changes...": Cyan);
+            }
+            #[cfg(not(feature = "watch"))]
+            {
+                println_styles!(
+                    "    Note: ": Yellow + bold;
+                    "\"watch\"": Yellow + italic;
+                    " feature not enabled": Yellow;
+                );
+            }
+            println!();
+
+            // Compile it now
+            match self.compile() {
+                // Success
+                Ok(()) => println_styles!("Compiled successfully!": Green + bold),
+                // Error
+                Err(err) => eprintln_styles!(
+                    "Error compiling in dev mode:": Red + bold;
+                    "\n{}": Yellow, err;
+                ),
+            }
         };
 
-        // Print message before compile
-        print_styles!(
-            "\nUnreact": Blue + bold + italic;
-            " dev server": Blue + bold;
-        );
-        if let Some(name) = crate::get_package_name() {
-            println_styles!(
-                " | ": Blue + dim;
-                "{}": Magenta, name;
-            );
-        } else {
-            println!();
-        }
-        println_styles!(
-            "Listening on ": Green + bold;
-            "http://localhost:{}": Green + bold + underline, self.config.port;
-        );
-        #[cfg(feature = "watch")]
-        {
-            println_styles!(
-                "    Rust code won't update without 'cargo run'": Yellow;
-                "\n    Watching files for changes...": Cyan;
-            );
-        }
-        #[cfg(not(feature = "watch"))]
-        {
-            println_styles!(
-                "    Note: ": Cyan + dim + bold;
-                "\"watch\"": Cyan + dim  + italic;
-                " feature not enabled": Cyan + dim;
-            );
-        }
-        if !self.config.watch_logs {
-            println!();
-        }
-
         // Compile for first time
-        compile();
+        run_compile();
 
         // For "watch" feature
         #[cfg(feature = "watch")]
@@ -341,12 +334,7 @@ impl<'a> Unreact<'a> {
             ];
 
             // Watch files for changes
-            server::watch(
-                compile,
-                watched_folders,
-                self.config.port_ws,
-                self.config.watch_logs,
-            );
+            server::watch(run_compile, watched_folders, self.config.port_ws);
         }
 
         // For NOT "watch" feature

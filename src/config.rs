@@ -61,17 +61,6 @@ pub struct Config {
     ///
     /// Only used with `"watch"` feature, but must be defined always
     pub port_ws: Port,
-
-    /// Whether logs should be sent to stdout for update events
-    ///
-    /// Only used with `"watch"` feature, but must be defined always
-    ///
-    /// Events that would be logged:
-    ///
-    /// - Recompile (reloads server)
-    /// - Client connect
-    /// - Client disconnect
-    pub watch_logs: bool,
 }
 
 impl Default for Config {
@@ -87,8 +76,6 @@ impl Default for Config {
 
             port: DEFAULT_PORT,
             port_ws: DEFAULT_PORT_WS,
-
-            watch_logs: false,
         }
     }
 }

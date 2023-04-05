@@ -9,7 +9,6 @@ use std::{
 use chrono::Utc;
 use notify::{EventKind, RecursiveMode, Watcher};
 use simple_websockets::{Event, Message, Responder};
-use stilo::println_styles;
 
 use crate::Port;
 
@@ -19,7 +18,7 @@ const MIN_RECOMPILE_INTERVAL: u32 = 800;
 const FILE_SAVE_WAIT: u64 = 300;
 
 /// Initialize websocket hub, with callback app router, and watch files for changes
-pub fn watch<F>(router: F, watched_folders: &[&str], port: Port, logs: bool)
+pub fn watch<F>(router: F, watched_folders: &[&str], port: Port)
 where
     F: Fn(),
 {
@@ -47,9 +46,7 @@ where
             match event {
                 // Client connected, add to list
                 Event::Connect(id, responder) => {
-                    if logs {
-                        println_styles!("        Client #{} connected": + dim, id);
-                    }
+                    // println_styles!("        Client #{} connected": + dim, id);
 
                     // Send message with last server start
                     responder.send(Message::Text(last_server_start.to_string()));
@@ -59,9 +56,7 @@ where
 
                 // Client disconnected, remove from list
                 Event::Disconnect(id) => {
-                    if logs {
-                        println_styles!("        Client #{} disconnected": + dim, id);
-                    }
+                    // println_styles!("        Client #{} disconnected": + dim, id);
 
                     // Remove client from list
                     clients.remove(&id);
@@ -116,9 +111,7 @@ where
         thread::sleep(Duration::from_millis(FILE_SAVE_WAIT));
 
         // Run callback router
-        if logs {
-            println_styles!("        Recompiling": Cyan + bold + dim);
-        }
+        // println_styles!("        Recompiling": Cyan + bold + dim);
         router();
 
         // Loop clients
