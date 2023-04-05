@@ -96,7 +96,8 @@ impl<'a> Unreact<'a> {
             routes: RouteMap::new(),
             globals: Object::new(),
             is_dev,
-            registry,
+            handlebars: registry,
+            url,
         })
     }
 
@@ -127,7 +128,12 @@ impl<'a> Unreact<'a> {
 
     /// Get [`Handlebars`](handlebars) registry as mutable reference
     pub fn handlebars(&mut self) -> &mut Handlebars<'a> {
-        &mut self.registry
+        &mut self.handlebars
+    }
+
+    /// Get URL of app (overridden in *dev mode*)
+    pub fn url(&self) -> &String {
+        &self.url
     }
 
     /// Compile app to build directory
@@ -137,7 +143,7 @@ impl<'a> Unreact<'a> {
         clean_build_dir(&self.config, self.is_dev)?;
 
         // Create handlebars registry
-        let mut registry = self.registry.clone();
+        let mut registry = self.handlebars.clone();
 
         // Enable strict mode if active
         if self.config.strict {

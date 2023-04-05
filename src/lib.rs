@@ -170,7 +170,13 @@ pub struct Unreact<'a> {
     /// Whether *dev mode* is active
     is_dev: bool,
     /// [`Handlebars`](handlebars) registry
-    registry: Handlebars<'a>,
+    /// 
+    /// Access with `.handlebars()` method
+    handlebars: Handlebars<'a>,
+    /// Url of app (overridden in *dev mode*)
+    /// 
+    /// Access with `.url()` method
+    url: String,
 }
 
 /// Check if `--dev` or `-d` argument was passed on `cargo run`
