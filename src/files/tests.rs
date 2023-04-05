@@ -30,7 +30,7 @@ fn read_folder_recurse_works() {
 
 #[test]
 fn clean_build_dir_works() {
-    assert!(clean_build_dir(&Config::default()).is_ok());
+    assert!(clean_build_dir(&Config::default(), false).is_ok());
 }
 
 #[test]

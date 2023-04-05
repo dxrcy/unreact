@@ -83,7 +83,7 @@ fn load_filemap(map: &mut FileMap, root: &str, parent: &str) -> Result<(), Error
 /// 2. Creates build folder
 /// 3. Creates `styles/` and `public/` inside build folder
 /// 4. Copies all files from public source folder into `public/` inside build folder
-pub fn clean_build_dir(config: &Config) -> Result<(), Error> {
+pub fn clean_build_dir(config: &Config, is_dev: bool) -> Result<(), Error> {
     // Remove build folder (if exists)
     if Path::new(&config.build).exists() {
         try_unwrap!(
@@ -103,11 +103,21 @@ pub fn clean_build_dir(config: &Config) -> Result<(), Error> {
         );
     }
 
-    // Recursively copy public directory
-    try_unwrap!(
-        dircpy::copy_dir(&config.public, format!("{}/public", config.build)),
-        else Err(err) => return io_fail!(CopyDir, config.public.clone(), err),
-    );
+    // Public directory
+    // Only *copy* directory in production
+    if !is_dev {
+        // Recursively copy public directory
+        try_unwrap!(
+            dircpy::copy_dir(&config.public, format!("{}/public", config.build)),
+            else Err(err) => return io_fail!(CopyDir, config.public.clone(), err),
+        );
+    } else {
+        // Create dummy note file
+        try_unwrap!(
+            fs::write(format!("{}/public/EMPTY", config.build), "'public' folder should always be empty in dev mode"),
+            else Err(err) => return io_fail!(CopyDir, config.public.clone(), err),
+        )
+    }
 
     Ok(())
 }

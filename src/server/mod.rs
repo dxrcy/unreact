@@ -26,7 +26,7 @@ pub use watch::watch;
 /// Similar to GitHub Pages router
 ///
 /// Reads file on every request: this should not be a problem for a dev server
-pub fn listen(port: Port, port_ws: Port) {
+pub fn listen(port: Port, public: &str, port_ws: Port) {
     // Create runtime
     let runtime = unwrap!(
         tokio::runtime::Builder::new_current_thread()
@@ -35,14 +35,22 @@ pub fn listen(port: Port, port_ws: Port) {
         "Failed to build tokio runtime"
     );
 
+    let public = public.to_string().clone();
+
     // Block on server running
     unwrap!(
         runtime.block_on(async {
             // Create service for router
+            // Moves `public`
             let make_svc =
-                make_service_fn(|_| async move {
-                    Ok::<_, Infallible>(service_fn(move |req| server_router(req, port_ws)))
-                });
+            make_service_fn(move |_| {
+                let public = public.clone();
+                async move {
+                    Ok::<_, Infallible>(service_fn(move |req| {
+                        server_router(req, public.clone(), port_ws)
+                    }))
+                }
+            });
 
             // Parse IP address
             let addr = unwrap!(
@@ -64,11 +72,24 @@ pub fn listen(port: Port, port_ws: Port) {
 ///
 /// If no possible file was found, use 404 route (same as <URL>/404 request).
 /// If no custom 404 page was found, use fallback 404 page
-async fn server_router(req: Request<Body>, port_ws: Port) -> Result<Response<Body>, Infallible> {
+async fn server_router(
+    req: Request<Body>,
+    public: String,
+    port_ws: Port,
+) -> Result<Response<Body>, Infallible> {
     // Check if is GET request
     if req.method() == Method::GET {
+        let path = req.uri().path();
+
+        // Map public files to source public folder
+        if path.starts_with("/public/") {
+            let path = path.replacen("/public", &public, 1);
+            return Ok(Response::new(Body::from(read_and_unwrap(&path))));
+        }
+
         // Return corresponding file as body if exists
-        if let Some(file) = get_best_possible_file(req.uri().path()) {
+        // Routes everything but `/public/` files
+        if let Some(file) = get_best_possible_file(path) {
             return Ok(Response::new(file));
         }
     }
@@ -105,26 +126,36 @@ fn get_best_possible_file(path: &str) -> Option<Body> {
         if Path::new(path).is_file() {
             // Returns file content as `Body`
             // Automatically parses to string, if is valid UTF-8, otherwise uses buffer
-            return Some(Body::from(unwrap!(
-                fs::read(path),
-                // Should only happen due to insufficient permissions or similar, not 'file not exist' error
-                "Could not read file '{}'",
-                path
-            )));
+            return Some(read_and_unwrap(path));
         }
     }
     None
 }
 
+/// Read file and convert to body
+///
+/// Panics if IO error occurs
+fn read_and_unwrap(path: &str) -> Body {
+    Body::from(unwrap!(
+        fs::read(path),
+        // Should only happen due to insufficient permissions or similar, not 'file not exist' error
+        "Could not read file '{}'",
+        path
+    ))
+}
+
 /// Gets the possible path 'suffixes' from the path string
 ///
-/// If path ends with '.html', or starts with '/styles' or '/public', then return a slice of an empty string.
+/// If path ends with '.html', or starts with '/styles', then return a slice of an empty string.
 /// This path should refer to a file literally
 ///
 /// Otherwise, return a slice of: an empty string (for a literal file), '.html', and '/index.html' (for file path shorthand).
 /// Suffixes are returned in that order, to match a file based on specificity
+///
+/// Paths starting with `/public/` should never be routed through here
+//TODO Make error for /public/ routing here
 fn possible_path_suffixes(path: &str) -> &'static [&'static str] {
-    if path.ends_with(".html") || path.starts_with("/styles/") || path.starts_with("/public/") {
+    if path.ends_with(".html") || path.starts_with("/styles/") {
         &[""]
     } else {
         &["", ".html", "/index.html"]

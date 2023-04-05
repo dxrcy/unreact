@@ -134,7 +134,7 @@ impl<'a> Unreact<'a> {
     ///
     /// Does not open a dev server, even in *dev mode*
     fn compile(&self) -> Result<(), Error> {
-        clean_build_dir(&self.config)?;
+        clean_build_dir(&self.config, self.is_dev)?;
 
         // Create handlebars registry
         let mut registry = self.registry.clone();
@@ -326,7 +326,8 @@ impl<'a> Unreact<'a> {
             // Open server in new thread
             let port = self.config.port;
             let port_ws = self.config.port_ws;
-            std::thread::spawn(move || server::listen(port, port_ws));
+            let public = self.config.public.clone();
+            std::thread::spawn(move || server::listen(port, &public, port_ws));
 
             // Folders to watch
             let watched_folders = &[
@@ -343,7 +344,7 @@ impl<'a> Unreact<'a> {
         #[cfg(not(feature = "watch"))]
         {
             // Open server in current thread
-            server::listen(self.config.port, self.config.port_ws);
+            server::listen(self.config.port, self.config.public, self.config.port_ws);
         }
 
         Ok(())
