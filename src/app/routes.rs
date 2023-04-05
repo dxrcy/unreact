@@ -30,7 +30,7 @@ macro_rules! include_shared_docs {
             ///     .index("page", object! {message: "World"})?
             ///     // 404 page with no data
             ///     .not_found("404", object! {})?;
-            /// # app.compile()
+            /// # app.run()
             /// # }
             /// ```
             ///
@@ -50,6 +50,8 @@ impl<'a> Unreact<'a> {
     include_shared_docs!(
         /// Create a route
         ///
+        /// **NOTE**: Route will only validate if template exists in production. In dev mode, this function **will always pass**, and error will occur during `run` function
+        ///
         /// ## Parameters
         ///
         /// - `path`: The folder (relative to build directory) that file should be written in (`{build}/{path}/index.html`)
@@ -57,10 +59,12 @@ impl<'a> Unreact<'a> {
         /// - `data`: Data to pass into the template, as an `Object`
         <::>
         pub fn route(&mut self, path: &str, template: &str, data: Object) -> Result<&mut Self, Error> {
-            // Check file exists
-            let file_path = format!("{}/{}.hbs", self.config.templates, template);
-            if !Path::new(&file_path).exists() {
-                return fail!(TemplateNotExist, template.to_string());
+            // Check file exists - only if NOT dev mode
+            if !self.is_dev{
+                let file_path = format!("{}/{}.hbs", self.config.templates, template);
+                if !Path::new(&file_path).exists() {
+                    return fail!(TemplateNotExist, template.to_string());
+                }
             }
 
             // Create route
@@ -107,6 +111,8 @@ impl<'a> Unreact<'a> {
         ///
         /// File is written to `{build}/index.html`
         ///
+        /// **NOTE**: Route will only validate if template exists in production. In dev mode, this function **will always pass**, and error will occur during `run` function
+        ///
         /// ## Parameters
         ///
         /// - `template`: The name of the template to use
@@ -122,6 +128,8 @@ impl<'a> Unreact<'a> {
         /// Used as the 404 page, for a path not found
         ///
         /// File is written to `{build}/404/index.html`
+        ///
+        /// **NOTE**: Route will only validate if template exists in production. In dev mode, this function **will always pass**, and error will occur during `run` function
         ///
         /// ## Parameters
         ///

@@ -21,5 +21,5 @@ fn large_example() {
         .route("article", "other/article", object! {})
         .expect("Could not create custom route");
 
-    app.compile().expect("Could not compile");
+    app.run().expect("Could not compile");
 }

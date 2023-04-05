@@ -77,7 +77,7 @@ fn main() -> Result<(), Error> {
    // A json object with a value for 'foo' is passed into the template
    app.index("page", object! { foo: "World!" })?;
    // Compile it!
-   app.compile()
+   app.run()
 }
 ```
 

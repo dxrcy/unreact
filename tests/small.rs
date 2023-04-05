@@ -8,5 +8,5 @@ fn small_example() {
     app.index("page", object! {})
         .expect("Could not create route");
 
-    app.compile().expect("Could not compile");
+    app.run().expect("Could not compile");
 }

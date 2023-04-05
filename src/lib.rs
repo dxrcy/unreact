@@ -21,7 +21,7 @@
 //!    // A json object with a value for 'foo' is passed into the template
 //!    app.index("page", object! { foo: "World!" });
 //!    // Compile it!
-//!    app.compile()
+//!    app.run()
 //! }
 //! ```
 //!
@@ -215,9 +215,11 @@ pub mod prelude {
     pub use crate::{is_dev, object, Config, Error, Unreact};
 }
 
+
 /// Get package name from `Cargo.toml` file in workspace
 ///
 /// Returns `None` if any errors are found, or no package name is found
+#[cfg(feature = "dev")]
 fn get_package_name() -> Option<String> {
     // Read Cargo.toml or return
     let file = std::fs::read_to_string("./Cargo.toml").ok()?;

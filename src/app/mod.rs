@@ -36,7 +36,7 @@ impl<'a> Unreact<'a> {
     ///     // A json object with a value for 'foo' is passed into the template
     ///     app.index("page", object! { foo: "World!" });
     ///     // Compile it!
-    ///     app.compile()
+    ///     app.run()
     /// }
     /// ```
     ///
@@ -117,7 +117,7 @@ impl<'a> Unreact<'a> {
     ///     // Globalize does not need to be ran before routes
     ///     .globalize(object! {smiley: "(^_^)"})
     ///     // Compiles with a smiley face replacing `{{GLOBAL.smiley}}`
-    ///     .compile()
+    ///     .run()
     /// # }
     /// ```
     pub fn globalize(&mut self, data: Object) -> &mut Self {
@@ -133,27 +133,7 @@ impl<'a> Unreact<'a> {
     /// Compile app to build directory
     ///
     /// Does not open a dev server, even in *dev mode*
-    ///
-    /// # Examples
-    ///
-    /// ### Quick Start
-    ///
-    /// ```rust,no_run
-    /// use unreact::prelude::*;
-    ///
-    /// fn main() -> Result<(), Error> {
-    ///     // Create the app
-    ///     // Using default config, not in dev mode, and an example url
-    ///     let mut app = Unreact::new(Config::default(), false, "https://example.com")?;
-    ///     // Create an index route
-    ///     // This uses the template 'page.hbs' in 'templates/'
-    ///     // A json object with a value for 'foo' is passed into the template
-    ///     app.index("page", object! { foo: "World!" });
-    ///     // Compile it!
-    ///     app.compile()
-    /// }
-    /// ```
-    pub fn compile(&self) -> Result<(), Error> {
+    fn compile(&self) -> Result<(), Error> {
         clean_build_dir(&self.config)?;
 
         // Create handlebars registry
@@ -228,9 +208,31 @@ impl<'a> Unreact<'a> {
 
     /// Compile app to build directory
     ///
-    /// Alias for `app.compile`, without the `"dev"` feature enabled
+    /// Compile app to build directory
+    ///
+    /// **NOTE**: The `"dev"` feature is not enabled, so app not open dev server, even in *dev mode*
     ///
     /// Add `features = "dev"` or `features = "watch"` to the `unreact` dependency in `Cargo.toml` to use the 'dev server'
+    ///
+    /// # Examples
+    ///
+    /// ### Quick Start
+    ///
+    /// ```rust,no_run
+    /// use unreact::prelude::*;
+    ///
+    /// fn main() -> Result<(), Error> {
+    ///     // Create the app
+    ///     // Using default config, not in dev mode, and an example url
+    ///     let mut app = Unreact::new(Config::default(), false, "https://example.com")?;
+    ///     // Create an index route
+    ///     // This uses the template 'page.hbs' in 'templates/'
+    ///     // A json object with a value for 'foo' is passed into the template
+    ///     app.index("page", object! { foo: "World!" });
+    ///     // Compile it!
+    ///     app.run()
+    /// }
+    /// ```
     #[cfg(not(feature = "dev"))]
     pub fn run(&self) -> Result<(), Error> {
         self.compile()
