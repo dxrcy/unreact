@@ -103,7 +103,7 @@ pub use crate::{
     config::Config,
     error::{Error, IoError},
 };
-pub use serde_json::Value;
+pub use serde_json::{Value, json};
 
 /// Represents json-like object
 /// A map of string keys to json values

@@ -54,19 +54,19 @@ macro_rules! object {
     (@entry $hm: expr,
         $key: ident
     ) => {
-        $hm.insert(String::from(stringify!($key)), $crate::Value::from($key));
+        $hm.insert(String::from(stringify!($key)), $crate::json!($key));
     };
 
     // Key and value
     (@entry $hm: expr,
         $key: ident : $value: expr
     ) => {
-        $hm.insert(String::from(stringify!($key)), $crate::Value::from($value));
+        $hm.insert(String::from(stringify!($key)), $crate::json!($value));
     };
 }
 
 /// Private macro
-/// 
+///
 /// Try to unwrap a `Result`, returns value in `Ok` variant
 ///
 /// If result is `Err`, then run code block
@@ -97,7 +97,7 @@ macro_rules! try_unwrap {
 }
 
 /// Private macro
-/// 
+///
 /// Shorthand for `Err(crate::Error...)`
 macro_rules! fail {
     ( $kind: ident ) => {
@@ -109,7 +109,7 @@ macro_rules! fail {
 }
 
 /// Private macro
-/// 
+///
 /// Shorthand for `Err(crate::Error::IoFail(crate::IoError...))`
 macro_rules! io_fail {
     ( $kind: ident ) => {

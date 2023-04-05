@@ -13,7 +13,7 @@ use simple_websockets::{Event, Message, Responder};
 use crate::Port;
 
 /// Minimum time to wait, in milliseconds, since the last event, for the websocket hub to send a reload request to the client
-const MIN_RECOMPILE_INTERVAL: u32 = 800;
+const MIN_RECOMPILE_INTERVAL: u32 = 1000;
 /// Time to wait, in milliseconds, before reading a recently saved file
 const FILE_SAVE_WAIT: u64 = 300;
 
