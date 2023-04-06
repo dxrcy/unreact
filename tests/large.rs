@@ -4,6 +4,10 @@ use unreact::prelude::*;
 fn large_example() {
     let config = Config {
         strict: true,
+        build: "tests/build".to_string(),
+        templates: "tests/templates".to_string(),
+        styles: "tests/styles".to_string(),
+        public: "tests/public".to_string(),
         ..Config::default()
     };
 

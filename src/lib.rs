@@ -9,7 +9,7 @@
 //!
 //! Create an site with a single index page
 //!
-//! ```
+//! ```rust,no_run
 //! use unreact::prelude::*;
 //!
 //! fn main() -> Result<(), Error> {

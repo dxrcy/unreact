@@ -10,11 +10,9 @@ authors = ["darcy"]
 keywords = ["framework", "ssg", "static", "site", "web"]
 categories = ["web-programming", "template-engine"]
 exclude = [
+    "tests",
     "build",
     ".devbuild",
-    "templates",
-    "styles",
-    "public",
     "target",
     "justfile",
     "examples",
