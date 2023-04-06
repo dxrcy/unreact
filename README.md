@@ -35,7 +35,7 @@ The client will reload if a change was detected.
 This will watch file in `src`, and reload the program. The client should automatically try to reconnect.
 
 ```
-cargo watch -x "run -- --dev" -w src
+cargo watch -x "run -- --dev" -w src -w Cargo.toml
 ```
 
 ## Ignoring `"dev"` Feature in Production
@@ -103,6 +103,7 @@ fn large_example() -> Result<(), Error> {
     });
 
     // Create some routes
+    // Note that these methods will never return an error in dev mode. The error will be handled on `app.run()`
     app.index("page", object! {message: "World!"})?
         .not_found("404", object! {})?
         .route_raw("hello", "this is my hello page".to_string())
@@ -138,8 +139,7 @@ jobs:
 
             # Run compilation script with Rust
             - name: Build 🔧
-              run: |
-                  cargo run --no-default-features
+              run: cargo run --no-default-features
 
             # Push changes with plugin
             - name: Deploy 🚀
@@ -148,5 +148,7 @@ jobs:
                   # This must be the build directory
                   folder: ./build
 ```
+
+---
 
 ![Unreact Icon](./icon.png)

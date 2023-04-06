@@ -1,5 +1,7 @@
 # TODO
 
+-   Move assets to test folder
+
 -   Client auto reconnect: try frequently, then after (10?) attempts, try less frequently
 -   Add tests for each feature (compile check only?)
 
