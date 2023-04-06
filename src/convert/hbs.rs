@@ -82,8 +82,6 @@ pub(crate) fn register_templates(
 
 /// Inbuilt templates (partials)
 const PARTIALS: &[(&str, &str)] = &[
-    // Local link
-    ("LINK", include_str!("partials/LINK.hbs")),
     // Local css style tag
     ("CSS", include_str!("partials/CSS.hbs")),
     // Local image icon
