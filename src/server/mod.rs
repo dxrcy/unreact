@@ -35,7 +35,7 @@ pub fn listen(port: Port, public: &str, port_ws: Port) {
         "Failed to build tokio runtime"
     );
 
-    let public = public.to_string().clone();
+    let public = public.to_string();
 
     // Block on server running
     unwrap!(
@@ -84,7 +84,7 @@ async fn server_router(
         // Map public files to source public folder
         if path.starts_with("/public/") {
             let path = path.replacen("/public", &public, 1);
-            return Ok(Response::new(Body::from(read_and_unwrap(&path))));
+            return Ok(Response::new(read_and_unwrap(&path)));
         }
 
         // Return corresponding file as body if exists
