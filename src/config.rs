@@ -66,10 +66,11 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
+            //? Move to const in lib.rs ?
             build: "build".to_string(),
-            templates: "templates".to_string(),
-            styles: "styles".to_string(),
-            public: "public".to_string(),
+            templates: "assets/templates".to_string(),
+            styles: "assets/styles".to_string(),
+            public: "assets/public".to_string(),
 
             strict: false,
             minify: true,
