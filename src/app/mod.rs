@@ -192,7 +192,7 @@ impl<'a> Unreact<'a> {
         let styles = read_folder_recurse(&self.config.styles)?;
         for (name, scss) in styles {
             // Create folder for `style.css` file
-            let parent = format!("{}/{}/{}", self.config.build, self.config.styles, name);
+            let parent = format!("{}/styles/{}", self.config.build, name);
             try_unwrap!(
                 fs::create_dir_all(&parent),
                 else Err(err) => return io_fail!(CreateDir, parent, err),

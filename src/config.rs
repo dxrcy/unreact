@@ -16,6 +16,8 @@ use crate::{Port, DEFAULT_PORT, DEFAULT_PORT_WS};
 /// - `styles`: Source folder for style files
 /// - `public`: Source folder for static public files
 ///
+/// > Note that `styles` and `public` folders in *build directory* **cannot** be configured.
+///
 /// Development Options:
 ///
 /// - `port`: Port to serve *dev server* on - Only used with `"dev"` feature
