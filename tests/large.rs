@@ -4,7 +4,7 @@ use unreact::prelude::*;
 fn large_example() {
     let config = Config {
         strict: true,
-        build: "tests/assets/build".to_string(),
+        build: "tests/build".to_string(),
         templates: "tests/assets/templates".to_string(),
         styles: "tests/assets/styles".to_string(),
         public: "tests/assets/public".to_string(),

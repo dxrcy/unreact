@@ -3,7 +3,7 @@ use super::*;
 #[test]
 fn check_source_folders_works() {
     let mut config = Config {
-        build: "tests/assets/build".to_string(),
+        build: "tests/build".to_string(),
         templates: "tests/assets/templates".to_string(),
         styles: "tests/assets/styles".to_string(),
         public: "tests/assets/public".to_string(),
@@ -38,7 +38,7 @@ fn read_folder_recurse_works() {
 #[test]
 fn clean_build_dir_works() {
     let config = Config {
-        build: "tests/assets/build".to_string(),
+        build: "tests/build".to_string(),
         templates: "tests/assets/templates".to_string(),
         styles: "tests/assets/styles".to_string(),
         public: "tests/assets/public".to_string(),

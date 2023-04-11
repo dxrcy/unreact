@@ -1,3 +1,8 @@
 /target
+
 /.devbuild
 /build
+/tests/.devbuild
+/tests/build
+
+/dist

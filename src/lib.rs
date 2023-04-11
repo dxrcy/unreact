@@ -33,14 +33,15 @@
 //!   ├─ src/
 //!   │  └─ main.rs
 //!   │
-//!   ├─ templates/
-//!   │  └─ page.hbs
-//!   │
-//!   ├─ styles/
-//!   └─ public/
+//!   └─ assets/
+//!      ├─ templates/
+//!      │  └─ page.hbs
+//!      │
+//!      ├─ styles/
+//!      └─ public/
 //! ```
 //!
-//! This is the contents of `templates/page.hbs`:
+//! This is the contents of `assets/templates/page.hbs`:
 //!
 //! ```hbs
 //! <h1> Hello {{foo}} </h1>
@@ -60,22 +61,23 @@
 //!   ├─ src/
 //!   │  └─ main.rs
 //!   │
-//!   ├─ templates/
-//!   │  ├─ boilerplate.hbs
-//!   │  ├─ hello.hbs
-//!   │  ├─ other/
-//!   │  │  ├─ another/
-//!   │  │  │  └─ something.hbs
-//!   │  │  └─ article.hbs
-//!   │  └─ page.hbs
-//!   │
-//!   ├─ styles/
-//!   │  ├─ global.scss
-//!   │  └─ scoped/
-//!   │     └─ stylish.scss
-//!   │
-//!   └─ public/
-//!      └─ favicon.ico
+//!   └─ assets/
+//!      ├─ templates/
+//!      │  ├─ boilerplate.hbs
+//!      │  ├─ hello.hbs
+//!      │  ├─ other/
+//!      │  │  ├─ another/
+//!      │  │  │  └─ something.hbs
+//!      │  │  └─ article.hbs
+//!      │  └─ page.hbs
+//!      │
+//!      ├─ styles/
+//!      │  ├─ global.scss
+//!      │  └─ scoped/
+//!      │     └─ stylish.scss
+//!      │
+//!      └─ public/
+//!         └─ favicon.ico
 //! ```
 
 /// Private macros module
@@ -103,7 +105,7 @@ pub use crate::{
     config::Config,
     error::{Error, IoError},
 };
-pub use serde_json::{Value, json};
+pub use serde_json::{json, Value};
 
 /// Represents json-like object
 /// A map of string keys to json values
@@ -170,11 +172,11 @@ pub struct Unreact<'a> {
     /// Whether *dev mode* is active
     is_dev: bool,
     /// [`Handlebars`](handlebars) registry
-    /// 
+    ///
     /// Access with `.handlebars()` method
     handlebars: Handlebars<'a>,
     /// Url of app (overridden in *dev mode*)
-    /// 
+    ///
     /// Access with `.url()` method
     url: String,
 }
@@ -220,7 +222,6 @@ const DEFAULT_PORT_WS: Port = 3001;
 pub mod prelude {
     pub use crate::{is_dev, object, Config, Error, Unreact};
 }
-
 
 /// Get package name from `Cargo.toml` file in workspace
 ///
