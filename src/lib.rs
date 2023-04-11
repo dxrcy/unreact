@@ -24,8 +24,9 @@ use crate::routes::{convert_routes, get_routes, PathToRender, TemplateToRender};
 pub type Object = serde_json::Map<String, Value>;
 
 //TODO docs
-pub fn run(values: Object, _global: Object) -> MyResult {
+pub fn run(global: Object) -> MyResult {
     let is_dev = true;
+    let strict_mode = true;
 
     let dir_dist = "dist";
     let dir_build = format!("{}/{}", dir_dist, if is_dev { "dev" } else { "build" });
@@ -34,10 +35,13 @@ pub fn run(values: Object, _global: Object) -> MyResult {
 
     create_build_dir(&dir_build)?;
 
+    //TODO check assets dirs
+
     let routes = get_routes(&dir_routes)?;
-    let routes = convert_routes(routes, values)?;
+    let routes = convert_routes(routes, &global)?;
 
     let mut registry = Handlebars::new();
+    registry.set_strict_mode(strict_mode);
 
     for TemplateToRender { route, .. } in &routes {
         let template_name = route.path.to_string();
@@ -54,7 +58,11 @@ pub fn run(values: Object, _global: Object) -> MyResult {
             route.path
         );
 
-        for PathToRender { filepath, values } in paths {
+        for PathToRender {
+            filepath,
+            mut values,
+        } in paths
+        {
             println!("    • Render to file: \x1b[34m{}\x1b[0m", filepath);
             if !values.is_empty() {
                 println!(
@@ -62,6 +70,11 @@ pub fn run(values: Object, _global: Object) -> MyResult {
                     values
                 );
             }
+
+            // Add global to value
+            let mut object = global.clone();
+            object.insert("self".to_string(), json!(values));
+            values = object;
 
             let template_name = route.path.to_string();
             let rendered = try_else!(

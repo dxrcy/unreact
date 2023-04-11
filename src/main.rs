@@ -20,11 +20,8 @@ fn main() {
         article,
         a,
         c,
-    };
-
-    let global = object! {
         secret: "fart"
     };
 
-    run(values, global).expect("Failed to run");
+    run(values).expect("Failed to run");
 }

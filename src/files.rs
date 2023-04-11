@@ -11,7 +11,7 @@ pub fn create_build_dir(path: &str) -> MyResult {
     }
 
     try_else!(
-        try fs::create_dir(path),
+        try fs::create_dir_all(path),
         else err: throw!("[io] Failed to create directory at '{}': {err:?}", path),
     );
 

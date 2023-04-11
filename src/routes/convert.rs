@@ -1,3 +1,5 @@
+// use serde_json::json;
+
 use crate::{
     error::MyResult,
     routes::{Fragment, Route},
@@ -29,7 +31,7 @@ impl PathToRender {
 
 //TODO rename
 //TODO docs
-pub fn convert_routes(routes: Vec<Route>, values: Object) -> MyResult<Vec<TemplateToRender>> {
+pub fn convert_routes(routes: Vec<Route>, global: &Object) -> MyResult<Vec<TemplateToRender>> {
     let mut templates: Vec<TemplateToRender> = Vec::new();
 
     // For each route
@@ -52,7 +54,7 @@ pub fn convert_routes(routes: Vec<Route>, values: Object) -> MyResult<Vec<Templa
                 // Dynamic value
                 Fragment::Value(name) => {
                     // Get value as object
-                    let Some(map) = values.get(name) else {
+                    let Some(map) = global.get(name) else {
                         throw!("Value is not given with name '{}'", name);
                     };
                     let Some(map) = map.as_object() else {
@@ -73,6 +75,7 @@ pub fn convert_routes(routes: Vec<Route>, values: Object) -> MyResult<Vec<Templa
                             // Add key to filepath
                             path.filepath.push('/');
                             path.filepath.push_str(key);
+
                             // Add value to object
                             path.values.insert(name.clone(), value.clone());
 
@@ -106,7 +109,7 @@ mod tests {
     use Fragment::*;
 
     #[test]
-    fn it_works() {
+    fn convert_routes_works() {
         let values = object! {
             item: object!{
                 bar: "Value bar",
@@ -115,7 +118,7 @@ mod tests {
             other: object!{
                 foo2: "Value foo 2",
                 bar2: "Value bar 2",
-            },
+            }
         };
 
         let original = vec![
@@ -144,7 +147,7 @@ mod tests {
             },
         ];
 
-        let templates = convert_routes(original, values).unwrap();
+        let templates = convert_routes(original, &values).unwrap();
 
         let expected = vec![
             TemplateToRender {
@@ -154,7 +157,7 @@ mod tests {
                 },
                 paths: vec![PathToRender {
                     filepath: "/index.html".to_string(),
-                    values: Object::new(),
+                    values: object! {},
                 }],
             },
             TemplateToRender {
@@ -164,7 +167,7 @@ mod tests {
                 },
                 paths: vec![PathToRender {
                     filepath: "/404/index.html".to_string(),
-                    values: Object::new(),
+                    values: object! {},
                 }],
             },
             TemplateToRender {
@@ -179,11 +182,11 @@ mod tests {
                 paths: vec![
                     PathToRender {
                         filepath: "/values/bar/index.html".to_string(),
-                        values: object! { item:"Value bar" },
+                        values: object! {item:"Value bar"},
                     },
                     PathToRender {
                         filepath: "/values/foo/index.html".to_string(),
-                        values: object! { item:"Value foo" },
+                        values: object! {item:"Value foo"},
                     },
                 ],
             },

@@ -1,1 +1,14 @@
 this is the index page
+
+<br />
+<a href="404/index.html">404</a>
+<br />
+<a href="hello/index.html">hello</a>
+<br />
+<a href="hello/there/index.html">hello there</a>
+
+{{#each article}}
+<br />
+<a href="news/{{@key}}/index.html">news: {{@key}} - {{this}}</a>
+{{/each}}
+
