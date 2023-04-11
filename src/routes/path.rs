@@ -17,7 +17,7 @@ impl Display for RoutePath {
                 .iter()
                 .map(|fragment| match fragment {
                     Fragment::Literal(literal) => literal.to_string(),
-                    Fragment::Value(value) => format!("<{}>", value),
+                    Fragment::Value(value) => format!("${}", value),
                 })
                 .collect::<Vec<_>>()
                 .join("/")
@@ -144,6 +144,13 @@ mod tests {
                     Value("article".to_string())
                 ]),
             ],
+        );
+
+        let mapped: Vec<_> = mapped.into_iter().map(|path| path.to_string()).collect();
+
+        assert_eq!(
+            mapped,
+            vec!["/", "/404", "/hello", "/hello/there", "/news/$article",]
         );
     }
 

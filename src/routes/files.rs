@@ -17,14 +17,14 @@ pub fn load_filemap(root: &str) -> MyResult<FileMap> {
 }
 
 //TODO docs
-fn load_filemap_recurse(map: &mut FileMap, root: &str, parent: &str) -> MyResult<()> {
+fn load_filemap_recurse(map: &mut FileMap, root: &str, parent: &str) -> MyResult {
     // Full path relative to working directory
     let full_path = format!("{root}/{parent}/");
 
     // Children of current directory
     let children = try_else!(
         try fs::read_dir(&full_path),
-        else err: throw!("Could not read directory '{}': {err}", full_path),
+        else err: throw!("[io] Could not read directory '{}': {err}", full_path),
     );
 
     // Loop child files and folders
@@ -46,7 +46,7 @@ fn load_filemap_recurse(map: &mut FileMap, root: &str, parent: &str) -> MyResult
         // Read file contents
         let content = try_else!(
             try fs::read_to_string(&path),
-            else err: throw!("Could not read file '{}': {err}", path),
+            else err: throw!("[io] Could not read file '{}': {err}", path),
         );
 
         // Insert file and contents to hashmap

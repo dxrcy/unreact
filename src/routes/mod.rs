@@ -18,8 +18,8 @@ pub struct Route {
 
 /// Get routes from directory
 //TODO Check for duplicates
-pub fn get_routes() -> MyResult<Vec<Route>> {
-    let filemap = load_filemap("assets/routes")?;
+pub fn get_routes(dir: &str) -> MyResult<Vec<Route>> {
+    let filemap = load_filemap(dir)?;
 
     // Must be for loop, as error may be returned
     let mut routes = Vec::new();
