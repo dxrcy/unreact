@@ -18,6 +18,7 @@ exclude = [
     "examples",
     ".github",
     "TODO.md",
+    "assets",
 ]
 
 [dependencies]
