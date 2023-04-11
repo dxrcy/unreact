@@ -45,7 +45,7 @@ pub fn convert_routes(routes: Vec<Route>, values: Object) -> MyResult<Vec<Templa
                     for PathToRender { filepath, .. } in &mut paths {
                         // Add literal fragment to filepath string
                         filepath.push('/');
-                        filepath.push_str(&literal);
+                        filepath.push_str(literal);
                     }
                 }
 
