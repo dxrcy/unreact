@@ -25,15 +25,6 @@ impl Display for RoutePath {
     }
 }
 
-impl IntoIterator for RoutePath {
-    type Item = Fragment;
-    type IntoIter = std::vec::IntoIter<Self::Item>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.0.into_iter()
-    }
-}
-
 impl TryFrom<&str> for RoutePath {
     type Error = Error;
 
@@ -47,7 +38,7 @@ impl TryFrom<&str> for RoutePath {
 pub enum Fragment {
     /// Literal path fragment string
     Literal(String),
-    /// Variable name
+    /// Variable name for dynamic value
     Value(String),
 }
 

@@ -6,7 +6,7 @@ use self::files::load_filemap;
 use crate::error::MyResult;
 
 pub use self::{
-    convert::convert_routes,
+    convert::{convert_routes, PathToRender, TemplateToRender},
     path::{Fragment, RoutePath},
 };
 

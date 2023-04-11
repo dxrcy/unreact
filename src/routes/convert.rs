@@ -4,16 +4,18 @@ use crate::{
     Object,
 };
 
+//TODO rename ?
 #[derive(Debug, PartialEq)]
 pub struct TemplateToRender {
-    route: Route,
-    paths: Vec<PathToRender>,
+    pub route: Route,
+    pub paths: Vec<PathToRender>,
 }
 
+//TODO rename ?
 #[derive(Clone, Debug, PartialEq)]
 pub struct PathToRender {
-    filepath: String,
-    values: Object,
+    pub filepath: String,
+    pub values: Object,
 }
 
 impl PathToRender {
@@ -25,52 +27,64 @@ impl PathToRender {
     }
 }
 
+//TODO rename
+//TODO docs
 pub fn convert_routes(routes: Vec<Route>, values: Object) -> MyResult<Vec<TemplateToRender>> {
     let mut templates: Vec<TemplateToRender> = Vec::new();
 
+    // For each route
     for route in routes {
+        // Start with one path
         let mut paths = vec![PathToRender::new()];
 
-        for fragment in route.path.clone() {
+        // For each fragment in route path
+        for fragment in &route.path.0 {
             match fragment {
+                // Literal
                 Fragment::Literal(literal) => {
                     for PathToRender { filepath, .. } in &mut paths {
+                        // Add literal fragment to filepath string
                         filepath.push('/');
                         filepath.push_str(&literal);
                     }
                 }
 
-                //TODO optimize
+                // Dynamic value
                 Fragment::Value(name) => {
-                    // println!("    /{} (Value)", name);
-
-                    let Some(map) = values.get(&name) else {
+                    // Get value as object
+                    let Some(map) = values.get(name) else {
                         throw!("Value is not given with name '{}'", name);
                     };
                     let Some(map) = map.as_object() else {
                         throw!("Value given is not an object map, named '{}'", name);
                     };
 
-                    let mut new_paths = Vec::new();
+                    // Move paths into temporary variable, reset paths
+                    let old_paths = paths;
+                    paths = Vec::new();
 
-                    for path in paths {
+                    // For each old path
+                    for old_path in old_paths {
+                        // For each key/value in value map
                         for (key, value) in map {
-                            let mut cloned = path.clone();
+                            // Clone path
+                            let mut path = old_path.clone();
 
-                            cloned.filepath.push('/');
-                            cloned.filepath.push_str(key);
+                            // Add key to filepath
+                            path.filepath.push('/');
+                            path.filepath.push_str(key);
+                            // Add value to object
+                            path.values.insert(name.clone(), value.clone());
 
-                            cloned.values.insert(name.clone(), value.to_owned());
-
-                            new_paths.push(cloned);
+                            // Add cloned path to new paths
+                            paths.push(path);
                         }
                     }
-
-                    paths = new_paths;
                 }
             }
         }
 
+        // Add 'index.html' to end of every path
         for path in &mut paths {
             if !path.filepath.ends_with('/') {
                 path.filepath.push('/');
@@ -78,6 +92,7 @@ pub fn convert_routes(routes: Vec<Route>, values: Object) -> MyResult<Vec<Templa
             path.filepath.push_str("index.html");
         }
 
+        // Push template
         templates.push(TemplateToRender { route, paths });
     }
 
