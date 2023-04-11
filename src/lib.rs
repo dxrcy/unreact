@@ -105,7 +105,22 @@ pub use crate::{
     config::Config,
     error::{Error, IoError},
 };
+
+pub use handlebars;
 pub use serde_json::{json, Value};
+
+/// Prelude for `Unreact`
+///
+/// ## Contains
+///
+/// - [`Unreact`] struct
+/// - [`Config`] struct
+/// - [`object`] macro
+/// - [`is_dev`](fn.is_dev.html) function
+/// - [`Error`] enum
+pub mod prelude {
+    pub use crate::{is_dev, object, Config, Error, Unreact};
+}
 
 /// Represents json-like object
 /// A map of string keys to json values
@@ -209,19 +224,6 @@ type Port = u16;
 const DEFAULT_PORT: Port = 3000;
 /// Local port to host websocket hub (on localhost)
 const DEFAULT_PORT_WS: Port = 3001;
-
-/// Prelude for `Unreact`
-///
-/// ## Contains
-///
-/// - [`Unreact`] struct
-/// - [`Config`] struct
-/// - [`object`] macro
-/// - [`is_dev`](fn.is_dev.html) function
-/// - [`Error`] enum
-pub mod prelude {
-    pub use crate::{is_dev, object, Config, Error, Unreact};
-}
 
 /// Get package name from `Cargo.toml` file in workspace
 ///
