@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fs, path::Path};
 
-use crate::{error::MyResult, Error};
+use crate::error::MyResult;
 
 type FileMap = HashMap<String, String>;
 

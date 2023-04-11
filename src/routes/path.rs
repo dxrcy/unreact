@@ -6,7 +6,7 @@ use crate::{error::MyResult, Error};
 ///
 /// Vector of `Fragment`'s
 #[derive(Clone, Debug, PartialEq)]
-pub struct RoutePath(Vec<Fragment>);
+pub struct RoutePath(pub(super) Vec<Fragment>);
 
 impl Display for RoutePath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -16,7 +16,7 @@ impl Display for RoutePath {
             self.0
                 .iter()
                 .map(|fragment| match fragment {
-                    Fragment::Literal(literal) => format!("{}", literal),
+                    Fragment::Literal(literal) => literal.to_string(),
                     Fragment::Value(value) => format!("<{}>", value),
                 })
                 .collect::<Vec<_>>()

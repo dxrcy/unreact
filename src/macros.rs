@@ -72,7 +72,7 @@ macro_rules! throw {
     (
         $literal: literal $(, $arg: expr )* $(,)?
     ) => {
-        return Err(Error::Generic(
+        return Err($crate::Error::Generic(
             format!($literal $(, $arg )*)
         ))
     };

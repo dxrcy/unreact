@@ -1,15 +1,19 @@
+mod convert;
 mod files;
 mod path;
 
 use self::files::load_filemap;
 use crate::error::MyResult;
 
-pub use self::path::{Fragment, RoutePath};
+pub use self::{
+    convert::convert_routes,
+    path::{Fragment, RoutePath},
+};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Route {
     pub path: RoutePath,
-    pub contents: String,
+    pub template: String,
 }
 
 /// Get routes from directory
@@ -22,7 +26,7 @@ pub fn get_routes() -> MyResult<Vec<Route>> {
     for (filepath, contents) in filemap {
         routes.push(Route {
             path: RoutePath::try_from(filepath.as_str())?,
-            contents,
+            template: contents,
         })
     }
 
