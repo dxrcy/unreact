@@ -1,56 +1,10 @@
 [package]
 name = "unreact"
-version = "0.5.3"
+version = "0.1.0"
 edition = "2021"
-description = "A static site generation framework for Rust using Handlebars and Scss."
-license = "MIT"
-documentation = "https://docs.rs/unreact/latest/unreact"
-repository = "https://github.com/darccyy/unreact"
-authors = ["darcy"]
-keywords = ["framework", "ssg", "static", "site", "web"]
-categories = ["web-programming", "template-engine"]
-exclude = [
-    "tests",
-    "build",
-    ".devbuild",
-    "target",
-    "justfile",
-    "examples",
-    ".github",
-    "TODO.md",
-]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-const-str = "0.5.3"
-dircpy = "0.3.14"
-grass = "0.12.3"
-handlebars = "4.3.6"
-serde_json = "1.0.94"
-css-minify = "0.3.1"
-minify-html = "0.10.8"
+serde_json = "1.0.95"
 thiserror = "1.0.40"
-
-# for `watch` feature
-http = { version = "0.2.9", optional = true }
-hyper = { version = "0.14.25", features = [
-    "server",
-    "tcp",
-    "http1",
-], optional = true }
-tokio = { version = "1.26.0", optional = true }
-notify = { version = "5.1.0", optional = true }
-notify-debouncer-mini = { version = "0.2.1", optional = true }
-simple-websockets = { version = "0.1.5", optional = true }
-chrono = { version = "0.4.24", optional = true }
-stilo = { version = "0.3.2", optional = true }
-
-[features]
-default = ["watch"]
-dev = ["dep:http", "dep:hyper", "dep:tokio", "dep:stilo"]
-watch = [
-    "dev",
-    "dep:notify",
-    "dep:notify-debouncer-mini",
-    "dep:simple-websockets",
-    "dep:chrono",
-]
