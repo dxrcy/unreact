@@ -5,8 +5,8 @@ use crate::{error::MyResult, Error};
 /// Path for a `Route`
 ///
 /// Vector of `Fragment`'s
-#[derive(Debug, PartialEq)]
-pub struct RoutePath(pub Vec<Fragment>);
+#[derive(Clone, Debug, PartialEq)]
+pub struct RoutePath(Vec<Fragment>);
 
 impl Display for RoutePath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -25,6 +25,15 @@ impl Display for RoutePath {
     }
 }
 
+impl IntoIterator for RoutePath {
+    type Item = Fragment;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+
 impl TryFrom<&str> for RoutePath {
     type Error = Error;
 
@@ -34,7 +43,7 @@ impl TryFrom<&str> for RoutePath {
 }
 
 /// Fragment of filepath
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Fragment {
     /// Literal path fragment string
     Literal(String),

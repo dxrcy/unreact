@@ -1,8 +1,10 @@
 mod files;
 mod path;
 
+use self::files::load_filemap;
 use crate::error::MyResult;
-use self::{files::load_filemap,path::RoutePath};
+
+pub use self::path::{Fragment, RoutePath};
 
 #[derive(Debug)]
 pub struct Route {

@@ -1,20 +1,30 @@
-use serde_json::json;
-
-use unreact::run;
+use unreact::{object, run};
 
 fn main() {
-    let articles = json!({
-        "one": "number one",
-        "two": "number two",
-    });
+    let article = object! {
+        one: "number one!",
+        two: "number two!",
+    };
+    
+    let a = object! {
+        one: "number one!",
+        two: "number two!",
+    };
+    
+    let c = object! {
+        one: "number one (c)!",
+        two: "number two (c)!",
+    };
 
-    let values = json!({
-        "articles": articles,
-    });
+    let values = object! {
+        article,
+        a,
+        c,
+    };
 
-    let global = json!({
-        "secret": "fart"
-    });
+    let global = object! {
+        secret: "fart"
+    };
 
     run(values, global).expect("Failed to run");
 }
