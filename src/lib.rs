@@ -80,6 +80,9 @@
 //!         └─ favicon.ico
 //! ```
 
+#![doc(html_logo_url = "https://raw.githubusercontent.com/darccyy/unreact/main/icon.png")]
+#![doc(html_favicon_url = "https://raw.githubusercontent.com/darccyy/unreact/main/icon.png")]
+
 /// Private macros module
 #[macro_use]
 mod macros;
