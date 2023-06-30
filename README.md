@@ -17,48 +17,36 @@ Add the latest version to your `Cargo.toml` dependencies
 unreact = "*"
 ```
 
-Run with `--dev` or `-d` arguments, for `unreact::is_dev()` function to return `true`
+## Using `"dev"` feature
+
+Features:
+
+- `unreact/dev` - Creates local dev server to host files.
+- `unreact/watch` - Superset of `unreact/dev`. Also listens for file changes and reloads server.
+
+Run with `--dev` or `-d` arguments, for `unreact::is_dev()` function to return `true`. Only works if `unreact/dev` or `unreact/watch` features are enabled.
 
 ```bash
-cargo run -- --dev
+# Run with `watch` feature, and dev mode
+cargo run --features unreact/watch -- --dev
+
+# Run without `watch` (for a production server)
+cargo run
 ```
 
-## Hot-reloading in dev mode
+### Hot-reloading in dev mode
 
 With the `"watch"` feature enabled, the dev server will watch for changes in asset folders (`templates`, `styles`, and `public`; Can be changed with config).
 The client will reload if a change was detected.
 
 > NOTE: This will NOT reload the client if Rust files (in `src`) were changed! (See below)
 
-## Watching router in dev mode
+### Watching router in dev mode
 
 This will watch file in `src`, and reload the program. The client should automatically try to reconnect.
 
 ```
-cargo watch -x "run -- --dev" -w src -w Cargo.toml
-```
-
-## Ignoring `"dev"` Feature in Production
-
-Disable default features (`"dev"` and `"watch"`) for less to compile in production.
-Code can be the same as in dev build.
-
-```toml
-[dependencies]
-# Disabled `unreact/dev` by default
-unreact = {version = "*", default-features = false}
-
-[features]
-# Override `unreact/dev` feature with default features
-default = ["unreact/dev"]
-```
-
-```bash
-# Run with `unreact/dev` feature
-cargo run
-
-# Run without `unreact/dev` (for a production server)
-cargo run --no-default-features
+cargo watch -x "run --features unreact/watch -- --dev" -w src -w Cargo.toml
 ```
 
 ## Small Example
