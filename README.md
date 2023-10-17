@@ -2,6 +2,8 @@
 
 A static site generation framework for Rust using Handlebars and Scss.
 
+> [Ibex](https://github.com/darccyy/ibex) is a much better option that this old project! Please consider!
+
 Submit issue [here](https://github.com/darccyy/unreact/issues/new)
 
 -   [Docs.rs](https://docs.rs/unreact)
